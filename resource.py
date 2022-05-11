@@ -24,6 +24,7 @@ from nltk.corpus import opinion_lexicon
 import random
 from allennlp.data.tokenizers import PretrainedTransformerTokenizer
 from allennlp.common.util import lazy_groups_of
+from torch.nn import CosineSimilarity
 
 """
 Resource Abstract Class
@@ -69,7 +70,7 @@ LoadedDatasets Class
 ============================================
 """
 class LoadedDatasets(LoadedResource):
-
+    shuffle: bool = False
     def _load(self, dataset_name):
         if dataset_name == "dbpedia14":
             assert self.load_folder is not None
@@ -95,8 +96,8 @@ class LoadedDatasets(LoadedResource):
                 with open(os.path.join(self.load_folder, f"yelp/{split}/data.txt")) as file:
                     texts = [line.rstrip() for line in file]
                 with open(os.path.join(self.load_folder, f"yelp/{split}/labels.txt")) as file:
-                    labels = [line.rstrip() for line in file]
-                dataset_dict[split] = Dataset.from_dict({'sentence': texts, 'label':labels})
+                    labels = [int(line.rstrip()) for line in file]
+                dataset_dict[split] = Dataset.from_dict({'text': texts, 'label':labels})
             dataset = DatasetDict(dataset_dict)
             num_labels = 2
         elif dataset_name == "sst2":
@@ -109,11 +110,13 @@ class LoadedDatasets(LoadedResource):
         elif dataset_name == "mnli":
             dataset = load_dataset("glue", "mnli")
             num_labels = 3
-        
+        elif dataset_name == "mrpc":
+            dataset = load_dataset('glue', 'mrpc')
+            num_labels = 2
         else:
             raise Exception("Cannot find the dataset.")
-            
-        dataset = dataset.shuffle(seed=0)
+        if self.shuffle:
+            dataset = dataset.shuffle(seed=0)
         
         return dataset, num_labels
 
@@ -137,27 +140,55 @@ hf_lm_names = {
     'albert-base-v2': 'albert-base-v2'
 }
 hf_model_names =  {
+    # SQUAD
+    'bert-base-uncased-squad2': 'deepset/bert-base-uncased-squad2',
+    'roberta-base-squad2': 'deepset/roberta-base-squad2',
+    'albert-base-v2-squad2': 'twmkn9/albert-base-v2-squad2',
+
     # for SST-2
     'bert-base-uncased-SST-2': 'textattack/bert-base-uncased-SST-2',
     'roberta-base-SST-2': 'textattack/roberta-base-SST-2',
     'albert-base-v2-SST-2':'textattack/albert-base-v2-SST-2',
+    # consistent with dataset_name
+    'bert-base-uncased-sst2': 'textattack/bert-base-uncased-SST-2',
+    'roberta-base-sst2': 'textattack/roberta-base-SST-2',
+    'albert-base-v2-sst2':'textattack/albert-base-v2-SST-2',
     # 'textattack/distilbert-base-uncased-SST-2',
     # 'textattack/distilbert-base-cased-SST-2',
     # 'textattack/xlnet-base-cased-SST-2',
     # 'textattack/xlnet-large-cased-SST-2',
     # 'textattack/facebook-bart-large-SST-2',
 
+    # for yelp
+    'bert-base-uncased-yelp': 'textattack/bert-base-uncased-yelp-polarity',
+    'roberta-base-yelp': 'VictorSanh/roberta-base-finetuned-yelp-polarity',
+    'albert-base-v2-yelp':'textattack/albert-base-v2-yelp-polarity',
+
     # for ag-news
     'bert-base-uncased-ag-news': 'textattack/bert-base-uncased-ag-news',
     'roberta-base-ag-news': 'textattack/roberta-base-ag-news', 
     'albert-base-v2-ag-news': 'textattack/albert-base-v2-ag-news',
+    # consistent with dataset_name
+    'bert-base-uncased-ag_news': 'textattack/bert-base-uncased-ag-news',
+    'roberta-base-ag_news': 'textattack/roberta-base-ag-news', 
+    'albert-base-v2-ag_news': 'textattack/albert-base-v2-ag-news',
     # 'textattack/distilbert-base-uncased-ag-news',
 
+    # for MRPC
+    'bert-base-uncased-MRPC': 'textattack/bert-base-uncased-MRPC',
+    'roberta-base-MRPC': 'textattack/roberta-base-MRPC',
+    'albert-base-v2-MRPC': 'textattack/albert-base-v2-MRPC',
+    # consistent with dataset_name
+    'bert-base-uncased-mrpc': 'textattack/bert-base-uncased-MRPC',
+    'roberta-base-mrpc': 'textattack/roberta-base-MRPC',
+    'albert-base-v2-mrpc': 'textattack/albert-base-v2-MRPC',
+
     # for QQP
-    # 'textattack/bert-base-uncased-QQP',
+    'bert-base-uncased-QQP': 'textattack/bert-base-uncased-QQP',
     # 'textattack/distilbert-base-uncased-QQP',
     # 'textattack/distilbert-base-cased-QQP',
-    # 'textattack/albert-base-v2-QQP',
+    'albert-base-v2-QQP': 'textattack/albert-base-v2-QQP',
+    'roberta-base-QQP': 'howey/roberta-large-qqp',
     # 'textattack/xlnet-large-cased-QQP',
     # 'textattack/xlnet-base-cased-QQP',
 
@@ -165,6 +196,11 @@ hf_model_names =  {
     # 'textattack/bert-base-uncased-snli',
     # 'textattack/distilbert-base-cased-snli',
     # 'textattack/albert-base-v2-snli',
+
+    # for WNLI
+    # 'textattack/bert-base-uncased-WNLI',
+    # 'textattack/roberta-base-WNLI',
+    # 'textattack/albert-base-v2-WNLI',
 
     # for MNLI
     # 'textattack/bert-base-uncased-MNLI',
@@ -199,9 +235,10 @@ class LoadedHfTokenizers(LoadedResource):
 
     def _load(self, name):
         all_names = {**hf_model_names, **hf_lm_names}
-        if name in all_names:
-            valid_name = all_names[name]
-            # print('Valid name:', valid_name)
+        print('Valid name:', name)
+        assert name in all_names
+        valid_name = all_names[name]
+            
         return AutoTokenizer.from_pretrained(valid_name)
        
 
@@ -236,11 +273,14 @@ class HfModelBundle:
     def all_special_ids(self):
         return self.tokenizer.all_special_ids
 
-    def tokenize_from_words(self, words: List[str]):
+    def tokenize_from_words(self, words1: List[str], words2: List[str]=None):
         if getattr(self, "allennlp_tokenizer", None) is None:
             self.allennlp_tokenizer = PretrainedTransformerTokenizer(self.full_model_name)
-        wordpieces, offsets = self.allennlp_tokenizer.intra_word_tokenize(words)
-        
+        if words2 is None:
+            wordpieces, offsets = self.allennlp_tokenizer.intra_word_tokenize(words1)
+        else:
+            wordpieces, offsets, offsets2 = self.allennlp_tokenizer.intra_word_tokenize_sentence_pair(words1, words2)
+            offsets.extend(offsets2)
         wordpieces = {
             'token_str': [t.text for t in wordpieces],
             "input_ids": [t.text_id for t in wordpieces],
@@ -250,7 +290,14 @@ class HfModelBundle:
         
         return wordpieces, offsets
     
-    def get_logit(self, words, y=None):
+    def get_logit(self, words):
+        model_output = self.get_model_output(words, y=None)
+        if isinstance(model_output, SequenceClassifierOutput):
+            return model_output.logits[0]
+        else: 
+            return None
+            
+    def get_model_output(self, words, y=None):
         wordpieces = self.tokenize_from_words(words)[0]
         model_input = {
             "input_ids": torch.LongTensor(wordpieces['input_ids']).unsqueeze(0),
@@ -260,25 +307,11 @@ class HfModelBundle:
         }
         if y is not None:
             model_input["labels"] = torch.LongTensor([y]).unsqueeze(0)
-
         model_output = self.forward(model_input)
-        if isinstance(model_output, SequenceClassifierOutput):
-            return model_output.logits[0]
-        else: 
-            None
-    
-    def get_sentence_embedding_from_words(self, words):
-        wordpieces = self.tokenize_from_words(words)[0]
-        model_input = {
-            "input_ids": torch.LongTensor(wordpieces['input_ids']).unsqueeze(0),
-            "token_type_ids": torch.LongTensor(wordpieces['token_type_ids']).unsqueeze(0),
-            "attention_mask": torch.LongTensor(wordpieces['attention_mask']).unsqueeze(0), 
-        }
-        cls_last_output = self.forward(model_input, cls_last_output=True)
+        return model_output
+        
 
-        return cls_last_output # dim: [num_sample=1, hidden_size]
-
-    def forward(self, model_input, cls_last_output=False):
+    def forward(self, model_input, return_last_hidden_states=False):
         # to correct device
         device = self.device
         model_input = {k: v.to(device) for k, v in model_input.items()}
@@ -288,7 +321,7 @@ class HfModelBundle:
         with torch.no_grad():
             model_output = self.model(**model_input, output_hidden_states=True) 
 
-        if cls_last_output:
+        if return_last_hidden_states:
             # TODO: include other types of tasks
             assert isinstance(model_output, (SequenceClassifierOutput, MaskedLMOutput))
 
@@ -296,15 +329,14 @@ class HfModelBundle:
             # tuple for all layers' the hidden state
             last_hidden_state = model_output.hidden_states[-1]
 
-            # [:, 0]  taking the hidden state corresponding
-            # to the first token.
-            return last_hidden_state[:, 0] 
+            return last_hidden_state
+            
         else:
             return model_output
 
-    def get_sentence_embedding(self, examples: List[str],):
+    def get_sentence_embedding(self, examples: List[str], use_cls=False, normalize=False):
         embeddings = []
-        for batch in lazy_groups_of(examples, 2): # assume the device is capable to deal with bsz 8
+        for batch in lazy_groups_of(examples, 2): # assume the device is capable to deal with bsz 2
             model_input = self.tokenizer.batch_encode_plus(
                 batch, 
                 max_length=256, 
@@ -312,11 +344,45 @@ class HfModelBundle:
                 padding=True, 
                 return_tensors='pt'
                 )
-            cls_last_output = self.forward(model_input, cls_last_output=True)
             
-            embeddings.append(cls_last_output)
-       
-        return torch.cat(embeddings, dim=0) # dim: [num_sample, hidden_size]
+            last_hidden_states = self.forward(model_input, return_last_hidden_states=True)
+            if use_cls:  
+                # [:, 0]  taking the hidden state corresponding
+                # to the first token, i.e., [CLS].           
+                embeddings.append(last_hidden_states[:, 0])
+            else:
+                all_tokens_embeddings = last_hidden_states[:, 1:]
+                embeddings.append(all_tokens_embeddings.mean(dim=1))
+        result = torch.cat(embeddings, dim=0) # dim: [num_sample, hidden_size]
+        if normalize:
+            return (result - result.mean(dim=1))/result.std(dim=1)
+        else:
+            return result
+    
+    def get_sentence_embedding_from_words(self, words, use_cls=False, normalize=False):
+        wordpieces = self.tokenize_from_words(words)[0]
+        model_input = {
+            "input_ids": torch.LongTensor(wordpieces['input_ids']).unsqueeze(0),
+            "token_type_ids": torch.LongTensor(wordpieces['token_type_ids']).unsqueeze(0),
+            "attention_mask": torch.LongTensor(wordpieces['attention_mask']).unsqueeze(0), 
+        }
+        last_hidden_states = self.forward(model_input, return_last_hidden_states=True)
+        if use_cls:
+            result = last_hidden_states[:, 0] # dim: [num_sample=1, hidden_size]
+        else:
+            all_tokens_embeddings = last_hidden_states[:, 1:] # dim: [num_sample=1, seq_len, hidden_size]
+            result =  all_tokens_embeddings.mean(dim=1) # dim: [num_sample=1, hidden_size]
+        if normalize:
+            return (result - result.mean(dim=1))/result.std(dim=1)
+        else:
+            return result
+
+    def get_cos_sim(self, words1, words2):
+        
+        cos_sim = CosineSimilarity(dim=1)
+        sent_emb1 = self.get_sentence_embedding_from_words(words1)
+        sent_emb2 = self.get_sentence_embedding_from_words(words2)
+        return cos_sim(sent_emb1, sent_emb2)
 
 
 class LoadedHfModelBundle(LoadedResource):
@@ -336,18 +402,25 @@ class AllenNLPModelBundle:
 Sentiment Lexicon
 ============================================
 """
-def get_sentiment_lexicon(n=50):
+def get_sentiment_lexicon(n=50, simple_word=False):
     tagged_neg = nltk.pos_tag(list(opinion_lexicon.negative()))
     tagged_pos = nltk.pos_tag(list(opinion_lexicon.positive()))
     pos_lexicon = [] 
     neg_lexicon = []
     for word, tag in tagged_pos:
-        if tag == 'JJ':
+        if tag == 'JJ': # adjective
             pos_lexicon.append(word)
 
     for word, tag in tagged_neg:
         if tag == 'JJ':
             neg_lexicon.append(word)
+    def is_simple_word(word):
+        # hf_tokenizers['bert-base-uncased'].tokenize(word)
+        return True
+
+    if simple_word:
+        pos_lexicon = [w for w in pos_lexicon if is_simple_word(w) ]
+        neg_lexicon = [w for w in neg_lexicon if is_simple_word(w) ]
 
     random.seed(20)
     pos_lexicon50 = random.sample(pos_lexicon, n)

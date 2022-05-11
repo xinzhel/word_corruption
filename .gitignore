@@ -1,4 +1,5 @@
 .vscode/
 __pycache__/
 debug.py
-outputs_local/
+outputs_local*/
+outputs_local_single_noise/

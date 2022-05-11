@@ -3,7 +3,7 @@ from resource import hf_model_bundles
 import pickle
 from utils import WIRSample
 
-dataset_name = 'sst2'
+dataset_name = 'yelp'
 data, num_labels = resource.datasets[dataset_name]
 test_data = data['test']
 print(test_data[0])
@@ -18,15 +18,15 @@ for i in range(test_data.num_rows):
     data = test_data[i]
 
     # bert 
-    wir_sample = WIRSample(data, hf_model_bundles[ 'textattack/bert-base-uncased-SST-2'] )
+    wir_sample = WIRSample(data, hf_model_bundles[ f'bert-base-uncased-{dataset_name}'] )
     bert_rank.append(wir_sample.wir)
 
     # robert
-    wir_sample = WIRSample(data, hf_model_bundles['textattack/roberta-base-SST-2'])
+    wir_sample = WIRSample(data, hf_model_bundles[f'roberta-base-{dataset_name}'])
     roberta_rank.append(wir_sample.wir)
 
     # albert
-    wir_sample = WIRSample(data, hf_model_bundles['textattack/albert-base-v2-SST-2'])
+    wir_sample = WIRSample(data, hf_model_bundles[f'albert-base-v2-{dataset_name}'])
     albert_rank.append(wir_sample.wir)
 
 total_overlap_rate = 0

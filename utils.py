@@ -4,6 +4,7 @@ from typing import Iterable, List
 import numpy as np
 import torch
 import random
+import os
 from torch import Tensor, backends
 from torch.nn.modules.loss import _Loss
 from torch.utils.hooks import RemovableHandle
@@ -11,7 +12,8 @@ from allennlp.nn.util import move_to_device
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 from textflint.common.settings import MODIFIED_MASK
-from textflint.input.component.sample import UTSample
+from textflint.input.component.sample import Sample
+from textflint.input.component.field import TextField
 from textflint.common.utils.word_op import swap
 from textflint.generation.transformation import WordSubstitute
 from textflint.common.utils.word_op import get_start_end
@@ -22,6 +24,17 @@ from langdetect import detect
 from textattack.shared import utils
 from IPython.core.display import display, HTML
 from twitter import write_bearer_token_file
+
+
+def set_seed(seed):
+    """ Set all seeds to make results reproducible """
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    np.random.seed(seed)
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
 
 """
 Visualize
@@ -91,14 +104,33 @@ def visualize_text_diff(t1, t2, color_method=None):
 Textflint Utils
 ============================================
 """
-class WIRSample(UTSample):
-    def __init__(self, data, model_bundle=None, wir=None, pct_modify=None, n_modify=None):
+class WIRSample(Sample):
+    def __init__(
+        self, 
+        data, 
+        model_bundle=None, 
+        wir=None, 
+        pct_modify=None, 
+        n_modify=None,
+        origin=None,
+        sample_id=None):
+        
+        # load text and label
+        self.sentence1 = None
+        self.x = None
         if 'text' in data.keys():
             data['x'] = data['text']
-        if 'label' in data.keys():
-            data['y'] = data['label']
         
-        super().__init__(data)
+        if 'sentence2' in data.keys():
+            data['x'] = data['sentence2']
+            self.sentence1 = data['sentence1']
+            
+        if 'label' in data.keys():
+            data['y'] = int(data['label'])
+        
+        super().__init__(data, origin=origin, sample_id=sample_id)
+        
+
         # label, words, subwords
         self.labels = data['y']
         self.words = self.get_words('x')
@@ -115,12 +147,39 @@ class WIRSample(UTSample):
             self.tokenizer = model_bundle.tokenizer
             self.embedding_layer = model_bundle.embedding_layer
             self.device = model_bundle.device
-            self.wordpieces, self.offsets = model_bundle.tokenize_from_words(self.words, return_str=False)
+            self.wordpieces, self.offsets = model_bundle.tokenize_from_words(self.words, self.sentence1)
         else: 
             assert wir is not None # if not providing model to calculate wir, we should have wir as the parameter
             self._wir = wir
             self.fix_wir = True
-        
+    
+    def __repr__(self):
+        return 'WIRSample'
+
+    def check_data(self, data):
+        assert 'x' in data and isinstance(data['x'], str)
+
+    def load(self, data):
+        r"""
+        Convert data dict which contains essential information to SASample.
+
+        :param dict data: contains 'x' key at least.
+        :return:
+
+        """
+        self.x = TextField(data['x'])
+
+    def dump(self):
+        return {'x': self.x.text, 'sample_id': self.sample_id}
+
+    def is_legal(self):
+        r"""
+        Validate whether the sample is legal
+
+        :return: bool
+
+        """
+        return True
         
     @property
     def wir(self):
@@ -165,19 +224,30 @@ class WIRSample(UTSample):
         
         mask = super().get_mask(field)
         wir_mask = [MODIFIED_MASK for _ in mask]
+        wir = self.wir
+        # locate word_idx for transformation; 
+        # this is necessary for sentence pair, where we len(mask) is for the 'x'-keyed sentence
+        valid_wir = [idx for idx in wir if idx <len(mask) ]
 
+        # find the number of words to modify
         if self.n_modify is not None:
+            # print('n_modify', self.n_modify)
             n_modify = self.n_modify
         elif self.pct_modify is not None:
+            # print('pct_modify', self.pct_modify)
             n_modify = int(self.pct_modify * len(mask))
         else:
-            n_modify = len(self.wir)
+            # print('mask length:', len(mask))
+            n_modify = len(valid_wir)
         
-        for i in range(n_modify):
-            word_idx = self.wir[i]
-            wir_mask[word_idx] = 0
+        if n_modify > len(valid_wir): # not use wir
+            return mask
+        else: 
+            for i in range(n_modify):
+                word_idx = valid_wir[i]
+                wir_mask[word_idx] = 0
 
-        return wir_mask
+            return wir_mask
 
     def loss_approximate(self, rank = 0):
         if self.fix_wir:
