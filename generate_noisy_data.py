@@ -4,7 +4,7 @@ import random
 from tqdm import tqdm
 
 from textflint.input.component.sample import UTSample
-from utils import WIRSample, visualize_text_diff, Accent, TypoSwap, AddVowel, DeleteVowel
+from utils import WIRSample, visualize_text_diff, Accent, TypoSwap, AddVowel, DeleteVowel, set_seed, KeyboardNoise
 from textflint.generation.transformation.UT import Keyboard, Typos
 
 import argparse
@@ -14,8 +14,9 @@ import argparse
 class TextModifier:
     def __init__(self, noisers):
         self.noisers = noisers
-        self.total_count = dict()
+        self.total_count = 0
         self.fail = dict()
+        self.fail_total = 0
 
     def _textflint_transform(self, sample):
 
@@ -37,38 +38,43 @@ class TextModifier:
                 except KeyError:
                     self.fail[noiser_str] = 1
                 
-            try:
-                self.total_count[noiser_str] += 1
-            except KeyError:
-                self.total_count[noiser_str] = 1
+            self.total_count += 1
         
         return example
 
-    def _mix_transform(self, sample, num_generate = 10):
-
+    def _mix_transform(self, sample, num_generate = 10, max_try = 40):
+        
         example = {}
         example['x'] = sample.get_words('x') #sample.get_text('x')
         wir = sample.wir
-        
+        set_seed(22)
         for i in range(num_generate):
             generate_txt = []
             for j, word in enumerate(example['x']):
                 if j not in wir or (not word.isalpha()):
                     generate_txt.append(word)
                     continue
-                while True:
+                tried = 0
+
+                while tried < max_try:
                     # randomly select a noiser
                     noiser = random.choice(self.noisers)
+                    # print(tried, noiser)
                     # noise the word
                     noisy_word = noiser._get_candidates( word, n=1)
-                    if noisy_word and noisy_word[0] != word:
+                    if len(noisy_word) > 0 and noisy_word[0] != word:
                         generate_txt.append(noisy_word[0])
                         break
                     # print(word, 'to', noisy_word)
                     # print(generate_txt)
-          
+                    tried += 1
+                    if tried == max_try:
+                        self.fail_total += 1
+                        generate_txt.append(word)
+            
+            assert len(example['x'] ) == len( generate_txt )
             example[f'x_noise{i}'] = generate_txt
-            assert len(example['x'] ) == len(example[f'x_noise{i}'])
+            self.total_count += 1
 
         
         return example
@@ -114,9 +120,12 @@ def generate_noisy_data(text_modifier, dataset_name='ag_news', mix_transform=Tru
     noisy_data = []
 
     assert 'x' in test_data[0].keys()
+    failed = 0
     for i in tqdm(range(len(test_data))):
         wir = test_wir[i]
         if not wir: # empty list
+            failed += 1
+            print(f'No words to moidy for the {i}-th sentences')
             continue
         noisy_sample = text_modifier.transform(
             test_data[i], 
@@ -131,7 +140,9 @@ def generate_noisy_data(text_modifier, dataset_name='ag_news', mix_transform=Tru
     
         # test_data = test_data.map(text_modifier.wir_transform(pct_modify=None, wir=ag_news_test_wir[i]))
     print('Total examples: ', text_modifier.total_count)
-    print('Failure cases: ', text_modifier.fail)
+    print('# of Sentences with no importance-ranking scores: ', failed)
+    print('Failure cases during noising: ', text_modifier.fail)
+    print('# of Failed Noising during noising: ', text_modifier.fail_total)
     return noisy_data
 
     
@@ -186,7 +197,7 @@ if __name__ == "__main__":
 
     #define noisers
     trans_p  = 1 # `WIRSample` will control pct_modify by preferentially selecting words with high WIR scores
-    keyboard = Keyboard(trans_p=trans_p)
+    keyboard = KeyboardNoise(trans_p=trans_p, include_upper_case=False, include_numeric=False, include_special_char=False)
     typoswap = TypoSwap(trans_p=trans_p, skip_first_char=True, skip_last_char=True)
     accent = Accent(trans_p=trans_p)
     addvowel = AddVowel(trans_p=trans_p)
@@ -196,10 +207,12 @@ if __name__ == "__main__":
     # generate noisy data
     if dataset_name == "sentiment-lexicon":
         noisers = [keyboard, typoswap, accent, addvowel, deletevowel]
+        print(noisers)
         text_modifier = TextModifier(noisers)
         noisy_data = generate_noisy_lexicon(text_modifier, n=400)
     else:
         noisers = [keyboard, typoswap, addvowel, deletevowel]
+        print(noisers)
         text_modifier = TextModifier(noisers)
         noisy_data = generate_noisy_data(text_modifier, dataset_name, mix_transform=mix_transform)
 

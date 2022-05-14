@@ -17,6 +17,7 @@ from textflint.input.component.field import TextField
 from textflint.common.utils.word_op import swap
 from textflint.generation.transformation import WordSubstitute
 from textflint.common.utils.word_op import get_start_end
+from textflint.generation.transformation.UT import Keyboard
 
 # for visualize
 from textattack.shared.attacked_text import AttackedText
@@ -40,18 +41,17 @@ def set_seed(seed):
 Visualize
 ============================================
 """
-def visualize_text_diff(t1, t2, color_method=None):
+def visualize_text_diff(words1, words2, color_method=None):
     """Highlights the difference between two texts using color.
     Has to account for deletions and insertions from original text to
     perturbed. Relies on the index map stored in
     ``self.original_result.attacked_text.attack_attrs["original_index_map"]``.
     """
 
-    t1 = AttackedText(t1)
-    t2 = AttackedText(t2)
-
-    if detect(t1.text) == "zh-cn" or detect(t1.text) == "ko":
-        return t1.printable_text(), t2.printable_text()
+    t1 = AttackedText(' '.join(words1))
+    t2 = AttackedText(' '.join(words2))
+    t1._words = words1
+    t2._words = words2
 
     if color_method is None:
         return t1.printable_text(), t2.printable_text()
@@ -68,6 +68,7 @@ def visualize_text_diff(t1, t2, color_method=None):
             # add words in t1 that are not in t2
             words_1_idxs.append(t1_idx)
         else:
+            
             w1 = t1.words[t1_idx]
             w2 = t2.words[t2_idx]
             if w1 == w2:
@@ -331,6 +332,49 @@ class AccentRules:
                     result[v].append(k)
 
         return result
+
+class KeyboardNoise(Keyboard):
+    def _get_candidates(self, word, n=5, **kwargs):
+        replaced_tokens = []
+        chars = self.token2chars(word)
+        # skip first and last char
+        indices = list(range(len(chars)))[1:-1]
+
+        if len(indices)==0:
+            return []
+        valid_chars_idxes = [
+            idx for idx in indices if chars[idx] in self.rules.rules and len(
+                self.rules.predict(
+                    chars[idx])) > 0]
+        if not valid_chars_idxes:
+            return []
+
+        # putback sampling
+        replace_char_idxes = [
+            random.sample(
+                valid_chars_idxes,
+                1)[0] for i in range(n)]
+        replace_idx_dic = {}
+
+        for idx in set(replace_char_idxes):
+            replace_idx_dic[idx] = replace_char_idxes.count(idx)
+
+        for replace_idx in replace_idx_dic:
+            sample_num = replace_idx_dic[replace_idx]
+            cand_chars = self.sample_num(
+                self.rules.predict(
+                    chars[replace_idx]), sample_num)
+
+            for cand_char in cand_chars:
+                replaced_tokens.append(
+                    self.chars2token(
+                        chars[:replace_idx] + [cand_char] + chars[
+                                                            replace_idx + 1:]))
+
+        return replaced_tokens
+
+    def __repr__(self):
+        return 'KeyboardNoise'
 
 class Accent(WordSubstitute):
     def __init__(
