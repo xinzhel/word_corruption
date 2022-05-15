@@ -36,6 +36,22 @@ def set_seed(seed):
     np.random.seed(seed)
     random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
+    
+"""
+IO utils
+============================================
+"""
+def find_data_folder(cur_dir):
+    # successfully exit
+    if os.path.exists(os.path.join(cur_dir, 'data')):
+        return os.path.join(cur_dir, 'data')
+    # fail exit
+    par_dir = os.path.abspath(os.path.join(cur_dir, os.pardir))
+    if par_dir == cur_dir: # root dir
+        return None
+    
+    # recursive call
+    return find_data_folder(par_dir)
 
 """
 Visualize
@@ -285,7 +301,54 @@ class WIRSample(Sample):
             if m == 0:
                 transformed_words.append(words[i])
         return transformed_words
-            
+
+"""
+Modified Textflint Keyboard 
+============================================
+"""
+class KeyboardNoise(Keyboard):
+    def _get_candidates(self, word, n=5, **kwargs):
+        replaced_tokens = []
+        chars = self.token2chars(word)
+        # skip first and last char
+        indices = list(range(len(chars)))[1:-1]
+
+        if len(indices)==0:
+            return []
+        valid_chars_idxes = [
+            idx for idx in indices if chars[idx] in self.rules.rules and len(
+                self.rules.predict(
+                    chars[idx])) > 0]
+        if not valid_chars_idxes:
+            return []
+
+        # putback sampling
+        replace_char_idxes = [
+            random.sample(
+                valid_chars_idxes,
+                1)[0] for i in range(n)]
+        replace_idx_dic = {}
+
+        for idx in set(replace_char_idxes):
+            replace_idx_dic[idx] = replace_char_idxes.count(idx)
+
+        for replace_idx in replace_idx_dic:
+            sample_num = replace_idx_dic[replace_idx]
+            cand_chars = self.sample_num(
+                self.rules.predict(
+                    chars[replace_idx]), sample_num)
+
+            for cand_char in cand_chars:
+                replaced_tokens.append(
+                    self.chars2token(
+                        chars[:replace_idx] + [cand_char] + chars[
+                                                            replace_idx + 1:]))
+
+        return replaced_tokens
+
+    def __repr__(self):
+        return 'KeyboardNoise'
+
 """
 Textflint Accent Transformation
 ============================================
@@ -332,49 +395,6 @@ class AccentRules:
                     result[v].append(k)
 
         return result
-
-class KeyboardNoise(Keyboard):
-    def _get_candidates(self, word, n=5, **kwargs):
-        replaced_tokens = []
-        chars = self.token2chars(word)
-        # skip first and last char
-        indices = list(range(len(chars)))[1:-1]
-
-        if len(indices)==0:
-            return []
-        valid_chars_idxes = [
-            idx for idx in indices if chars[idx] in self.rules.rules and len(
-                self.rules.predict(
-                    chars[idx])) > 0]
-        if not valid_chars_idxes:
-            return []
-
-        # putback sampling
-        replace_char_idxes = [
-            random.sample(
-                valid_chars_idxes,
-                1)[0] for i in range(n)]
-        replace_idx_dic = {}
-
-        for idx in set(replace_char_idxes):
-            replace_idx_dic[idx] = replace_char_idxes.count(idx)
-
-        for replace_idx in replace_idx_dic:
-            sample_num = replace_idx_dic[replace_idx]
-            cand_chars = self.sample_num(
-                self.rules.predict(
-                    chars[replace_idx]), sample_num)
-
-            for cand_char in cand_chars:
-                replaced_tokens.append(
-                    self.chars2token(
-                        chars[:replace_idx] + [cand_char] + chars[
-                                                            replace_idx + 1:]))
-
-        return replaced_tokens
-
-    def __repr__(self):
-        return 'KeyboardNoise'
 
 class Accent(WordSubstitute):
     def __init__(

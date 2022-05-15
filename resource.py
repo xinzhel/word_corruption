@@ -135,9 +135,13 @@ Available models in huggingface hub
 # transformers
 # TODO: for consistency, use the name composed of `{PLM_name}-{dataset_name}`
 hf_lm_names = {
+
     'bert-base-uncased' : 'bert-base-uncased',
     'roberta-base': 'roberta-base',
-    'albert-base-v2': 'albert-base-v2'
+    'albert-base-v2': 'albert-base-v2',
+    'bert' : 'bert-base-uncased',
+    'roberta': 'roberta-base',
+    'albert': 'albert-base-v2'
 }
 hf_model_names =  {
     # SQUAD
@@ -151,8 +155,11 @@ hf_model_names =  {
     'albert-base-v2-SST-2':'textattack/albert-base-v2-SST-2',
     # consistent with dataset_name
     'bert-base-uncased-sst2': 'textattack/bert-base-uncased-SST-2',
+    'bert-sst2': 'textattack/bert-base-uncased-SST-2',
     'roberta-base-sst2': 'textattack/roberta-base-SST-2',
+    'roberta-sst2': 'textattack/roberta-base-SST-2',
     'albert-base-v2-sst2':'textattack/albert-base-v2-SST-2',
+    'albert-sst2':'textattack/albert-base-v2-SST-2',
     # 'textattack/distilbert-base-uncased-SST-2',
     # 'textattack/distilbert-base-cased-SST-2',
     # 'textattack/xlnet-base-cased-SST-2',
@@ -163,6 +170,9 @@ hf_model_names =  {
     'bert-base-uncased-yelp': 'textattack/bert-base-uncased-yelp-polarity',
     'roberta-base-yelp': 'VictorSanh/roberta-base-finetuned-yelp-polarity',
     'albert-base-v2-yelp':'textattack/albert-base-v2-yelp-polarity',
+    'bert-yelp': 'textattack/bert-base-uncased-yelp-polarity',
+    'roberta-yelp': 'VictorSanh/roberta-base-finetuned-yelp-polarity',
+    'albert-yelp':'textattack/albert-base-v2-yelp-polarity',
 
     # for ag-news
     'bert-base-uncased-ag-news': 'textattack/bert-base-uncased-ag-news',
@@ -171,7 +181,10 @@ hf_model_names =  {
     # consistent with dataset_name
     'bert-base-uncased-ag_news': 'textattack/bert-base-uncased-ag-news',
     'roberta-base-ag_news': 'textattack/roberta-base-ag-news', 
-    'albert-base-v2-ag_news': 'textattack/albert-base-v2-ag-news',
+    'albert-ag_news': 'textattack/albert-base-v2-ag-news',
+    'bert-ag_news': 'textattack/bert-base-uncased-ag-news',
+    'roberta-ag_news': 'textattack/roberta-base-ag-news', 
+    'albert-ag_news': 'textattack/albert-base-v2-ag-news',
     # 'textattack/distilbert-base-uncased-ag-news',
 
     # for MRPC
