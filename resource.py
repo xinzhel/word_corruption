@@ -27,10 +27,9 @@ from allennlp.common.util import lazy_groups_of
 from torch.nn import CosineSimilarity
 
 """
-Resource Abstract Class
+IO utils
 ============================================
 """
-
 def find_load_folder(cur_dir):
     # successfully exit
     if os.path.exists(os.path.join(cur_dir, 'data')):
@@ -43,6 +42,10 @@ def find_load_folder(cur_dir):
     # recursive call
     return find_load_folder(par_dir)
 
+"""
+Resource Abstract Class
+============================================
+"""
 class LoadedResource(ABC):
     """ An abstract class for loading resource (e.g., datasets, Pytorch models)
     """
@@ -141,7 +144,7 @@ hf_lm_names = {
     'albert-base-v2': 'albert-base-v2',
     'bert' : 'bert-base-uncased',
     'roberta': 'roberta-base',
-    'albert': 'albert-base-v2'
+    'albert ': 'albert-base-v2'
 }
 hf_model_names =  {
     # SQUAD

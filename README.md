@@ -1,3 +1,17 @@
+All the script should be run inside the root directory of this project.
+
+## Preparing the Input folder for Clean Data and the Output folder for noisy data
+Run the following script to create the folders and prepare SST-2 data. 
+```
+$ mkdir outputs_local_mixed_noise
+$ mkdir data & cd data
+$ mkdir sst & mkdir yelp
+$ cd sst & wget https://allennlp.s3.amazonaws.com/datasets/sst/test.txt
+$ mv ../generate_data.py . & python generate_data.py
+```
+To download the Yelp data, refer to [the instruction for the CTVAE paper](https://github.com/bidishasamantakgp/CTVAE), and the AG-News data can be directly accessed via the code, which would use the one from huggingface `datasets`.
+
+
 ## Evaluating the Word Corruption of Noisy Data on PLMs
 The following script will generate the result as Pandas dataframe.
 ```
