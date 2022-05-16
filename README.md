@@ -1,6 +1,6 @@
 All the script should be run inside the root directory of this project.
 
-## Preparing the Input folder for Clean Data and the Output folder for noisy data
+## Download Clean Data into the Input folder / create the Output folder for noisy data
 Run the following script to create the folders and prepare SST-2 data. 
 ```
 $ mkdir outputs_local_mixed_noise
@@ -33,3 +33,16 @@ $ python identify_context_word.py --dataset_name $dataset_name
 $ python generate_noisy_data.py --dataset_name $dataset_name --mix_transform
 ```
 
+## (Optional) Evaluating new Models
+Either subword tokenizers, PLMs or data used in our experiments can be easily accessible in provided Python module `resource` as a dictionary.
+
+```
+import resource
+dataset_name = "sst2"
+plm_name = "bert"
+tokenizer = resource.hf_tokenizers[plm_name]
+plm = resource.hf_models["-".join(plm_name, dataset_name)]
+data = resource.datasets[dataset_name]
+```
+
+To add new huggingface models, you only need to add a key-value pair in the `hf_model_names` and then all the experiment can be regenerated on this new models.
