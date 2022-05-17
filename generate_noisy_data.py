@@ -186,8 +186,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     dataset_name = args.dataset_name
     mix_transform = args.mix_transform
-    if mix_transform and dataset_name == "sentiment-lexicon":
-        mix_transform = False
+    # if mix_transform and dataset_name == "sentiment-lexicon":
+    #     mix_transform = False
     if mix_transform:
         print('!!!Would apply mixed noise on sentences (not work for words in lexicon)')
         output_dir = "outputs_local_mixed_noise"

@@ -1,5 +1,6 @@
 All the script should be run inside the root directory of this project.
 
+
 ## Download Clean Data into the Input folder / create the Output folder for noisy data
 Run the following script to create the folders and prepare SST-2 data. 
 ```
@@ -11,7 +12,6 @@ $ mv ../generate_data.py . & python generate_data.py
 ```
 To download the Yelp data, refer to [the instruction for the CTVAE paper](https://github.com/bidishasamantakgp/CTVAE), and the AG-News data can be directly accessed via the code, which would use the one from huggingface `datasets`.
 
-
 ## Evaluating the Word Corruption of Noisy Data on PLMs
 The following script will generate the result as Pandas dataframe.
 ```
@@ -19,7 +19,13 @@ $ dataset_name=sst2
 $ model_name=bert-base-uncased-SST-2
 $ python word_corruption.py --dataset_name $dataset_name --model_name $model_name --mix_transform
 ```
-We provide Python codes in `check_result.ipynp` to load the dataframe  and re-generate the result  in the paper.
+
+## Check the result
+```
+$ python check_result.py --help # see help information for valid argument parameters
+$ python check_result.py --dataset_name yelp --model_name bert-yelp
+```
+We also provide Python codes in `check_result.ipynp` to load the dataframe and re-generate in the paper or further analyze the result.
 
 ## (Optional) Generating Noisy Sentences
 The generated sentences are publicly available in [The Google Cloud]().
