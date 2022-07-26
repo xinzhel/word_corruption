@@ -1,9 +1,26 @@
 import pickle
+from tabnanny import check
 import torch
 import pandas as pd
 import argparse
 import os
-from resource import hf_model_names, hf_lm_names
+from resource import check_valid_name
+
+def read_df(output_dir, dataset_name, model_name):
+    # texts
+    with open(f'{output_dir}/{dataset_name}_noisy.pickle', 'rb') as file:
+        noisy_data = pickle.load(file)
+    noisy_data = dict(noisy_data)
+
+    # corruption results
+    with open(f'{output_dir}/{dataset_name}_{model_name}.pickle', 'rb') as file:
+        examples = pickle.load(file)
+
+    df = pd.DataFrame.from_dict( examples )
+    df['countN'] = df['N_sets'].apply(lambda x: len(x[0]))
+    df['text'] = [noisy_data[index][f'x'] for index in df['index']]
+    df['noisy_txt'] = [noisy_data[index][f'x_{noise_type}'] for index, noise_type in zip(df['index'], df['noise_type'])]
+    return df, noisy_data
 
 def evaluate(
     output_dir,
@@ -21,26 +38,9 @@ def evaluate(
         ## return 
         df:  for classifiers, samples whose clean texts are correctly predicted and satisfy the seq_max_len
          for LM for sentiment lexicon, we return all the samples
-    """
-    all_names = {**hf_model_names, **hf_lm_names}
-    try:
-        model_name = all_names[model_name]
-        model_names = [k for k,v in all_names.items() if v == model_name]
-        for model_name in model_names:
-            if os.path.exists(f'{output_dir}/{dataset_name}_{model_name}.pickle'):
-                break
-    except KeyError:
-        print('Not valid model name!!! Valid template in RegExp: (bert|albert|roberta)-*(yelp|sst2|ag-news)*')
-    with open(f'{output_dir}/{dataset_name}_noisy.pickle', 'rb') as file:
-        noisy_data = pickle.load(file)
-    noisy_data = dict(noisy_data)
-    with open(f'{output_dir}/{dataset_name}_{model_name}.pickle', 'rb') as file:
-        examples = pickle.load(file)
-
-    df = pd.DataFrame.from_dict( examples )
-    df['countN'] = df['N_sets'].apply(lambda x: len(x[0]))
-    df['text'] = [noisy_data[index][f'x'] for index in df['index']]
-    df['noisy_txt'] = [noisy_data[index][f'x_{noise_type}'] for index, noise_type in zip(df['index'], df['noise_type'])]
+    """ 
+    model_name = check_valid_name(model_name)
+    df, noisy_data = read_df(output_dir, dataset_name, model_name)
     
     # for seq_max_len
     valid_index = []
@@ -67,8 +67,10 @@ def evaluate(
     if dataset_name == "sentiment-lexicon":
         df = df.iloc[[True if len(lst)==1 else False for lst in df['text'] ]]
 
-    ax = df.plot.scatter( x='countM', y='cos_sim', c='blue', alpha=0.3 )
-    ax = df.plot.scatter( x='countM_by_word_len', y='cos_sim', c='blue', alpha=0.3 )
+    _ = df.plot.scatter( x='countM', y='cos_sim', c='blue', alpha=0.3 )
+    _ = df.plot.scatter( x='countM_by_word_len', y='cos_sim', c='blue', alpha=0.3 )
+    _ = df.plot.scatter( x='dispersion_score', y='cos_sim', c='blue', alpha=0.3 )
+    
     max_val = countM_by_word_len_max_val
     min_val = countM_by_word_len_min_val
     if acc:
@@ -179,31 +181,6 @@ def evaluate(
             # print(f'avg wcr2 for {noise_type}: ', df[df.noise_type==noise_type]['wcr2'].mean())
 
     return df
-
-
-# def get_result(
-#     dataset_name, model_name,
-#     ):
-#     with open(f'outputs/{dataset_name}_noisy.pickle', 'rb') as file:
-#         noisy_data = pickle.load(file)
-#     with open(f'outputs_local/{dataset_name}_{model_name}.pickle', 'rb') as file:
-#         examples = pickle.load(file)
-#     df = pd.DataFrame.from_dict( examples )
-#     #test_data = resource.datasets[dataset_name][0]['test']
-#     # print(df)
-#     print(len(noisy_data), max(df['index']))
-#     df['text'] = [noisy_data[index][1][f'x'] for index in df['index']]
-#     df['noisy_txt'] = [noisy_data[index][1][f'x_{noise_type}'] for index, noise_type in zip(df['index'], df['noise_type'])]
-#     
-#     if model_name not in ['bert-base-uncased', 'roberta-base', 'albert-base-v2'] :
-#         df['conf'] = df.apply(lambda example:  torch.nn.functional.softmax(example.logit, dim=0).tolist()[example.label], axis=1)
-#         df['conf_clean'] = df.apply(lambda example: torch.nn.functional.softmax(example.logit_clean, dim=0).tolist()[example.label], axis=1)
-#         df['pred'] = df.logit.map(lambda logit: torch.argmax(logit, dim=0).item())
-#         df['pred_clean'] =df.logit_clean.map(lambda logit: torch.argmax(logit, dim=0).item())
-#         df['correct'] = df.pred == df.label
-#         df['correct_clean'] = df.pred_clean == df.label
-#     df['countN'] = df['N_sets'].apply(lambda x: len(x[0]))
-#     return df
 
 if __name__ == "__main__":
 

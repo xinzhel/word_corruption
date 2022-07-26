@@ -46,6 +46,7 @@ class Evaluator:
                  'noise_type': noiser_str, 
                  'countM': noisy_example[f'countM_{noiser_str}'] ,
                  'countM_by_word_len': noisy_example[f'countM_by_word_len_{noiser_str}'] ,
+                 'dispersion_score': noisy_example[f'dispersion_score_{noiser_str}'] ,
                  'countM_round': round(noisy_example[f'countM_{noiser_str}'] ), 
                  'countM_by_word_len_round': round(noisy_example[f'countM_by_word_len_{noiser_str}'],2 ), 
                  'countO': noisy_example[f'countO_{noiser_str}'],
@@ -86,6 +87,7 @@ class Evaluator:
             N_sets = []
             countM = 0
             countM_by_word_len = 0
+            dispersion_score = 0
             countO = 0
             wcr1 = 0
             wcr2 = 0
@@ -94,6 +96,8 @@ class Evaluator:
                 # word corruption score for a single word
                 token_set = tokens[offset[0]:offset[1] + 1]
                 token_set_noisy = tokens_noisy[offset_noisy[0]:offset_noisy[1] + 1]
+                token_set = [token.translate(token.maketrans('', '', '_#')) for token in token_set]
+                token_set_noisy = [token.translate(token.maketrans('', '', '_#')) for token in token_set_noisy]
                 if self.debug:
                     print(noiser_str)
                     print(token_set)
@@ -103,14 +107,21 @@ class Evaluator:
                 if token_set == token_set_noisy:
                     continue
 
-                # disagreement set
-                extra_token_set = (set(token_set) | set(token_set_noisy)).difference(set(token_set))
-                M_sets.append(extra_token_set )
+                # sets
+                overlap_set = set(token_set) & set(token_set_noisy)
+                missing_set = set(token_set).difference(overlap_set)
+                corruption_set = set(token_set_noisy).difference(overlap_set) #(set(token_set) | set(token_set_noisy)).difference(set(token_set))
+                M_sets.append(corruption_set )
                 
-                countM += len(extra_token_set) 
+                countM += len(corruption_set) 
                 assert isinstance(words[i], str) and len(words[i]) > 0
-                countM_by_word_len += len(extra_token_set) / len(words[i]) # count M
-                wcr1 += len(extra_token_set) / len(set(token_set_noisy))
+                countM_by_word_len += len(corruption_set) / len(words[i]) # count M
+                if dispersion_score!=-1:
+                    if len(missing_set) != 0:
+                        dispersion_score += len(corruption_set) / len(''.join(missing_set)) 
+                    else:
+                        dispersion_score = -1
+                wcr1 += len(corruption_set) / len(set(token_set_noisy))
 
                 # discard set
                 discard_token_set = (set(token_set) | set(token_set_noisy)).difference(set(token_set_noisy))
@@ -129,6 +140,7 @@ class Evaluator:
                 # which indicates that the number of additional subwords each edit brings on average.
                 example[f'countM_{noiser_str}'] = countM / num_context_words
                 example[f'countM_by_word_len_{noiser_str}'] = countM_by_word_len / num_context_words
+                example[f'dispersion_score_{noiser_str}'] = dispersion_score / num_context_words if dispersion_score != -1 else -1
                 example[f'countO_{noiser_str}'] = countO / num_context_words
                 example[f'wcr1_{noiser_str}'] = wcr1 / num_context_words
                 example[f'wcr2_{noiser_str}'] = wcr2 / num_context_words
@@ -165,8 +177,8 @@ class Evaluator:
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Generating...")
-    parser.add_argument("--dataset_name", default="yelp", type=str,)
-    parser.add_argument("--model_name", default="roberta-base-yelp", type=str,)
+    parser.add_argument("--dataset_name", default="sst2", type=str,)
+    parser.add_argument("--model_name", default="albert-base-v2-SST-2", type=str,)
     parser.add_argument("--mix_transform", action='store_true') # default False
     args = parser.parse_args()
     dataset_name = args.dataset_name

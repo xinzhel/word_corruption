@@ -1,3 +1,18 @@
+# coding=utf-8
+# Copyright 2022 Xinzhe Li All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import os
 from abc import ABC, abstractmethod
 from datasets import load_dataset, Dataset, DatasetDict
@@ -17,13 +32,49 @@ from transformers.modeling_outputs import (
     SequenceClassifierOutput,
     TokenClassifierOutput,
 )
-from typing import Union, List
+from typing import Union, List, Dict
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, AutoModelForMaskedLM
 import nltk
 from nltk.corpus import opinion_lexicon
 import random
 from allennlp.data.tokenizers import PretrainedTransformerTokenizer
 from allennlp.common.util import lazy_groups_of
+from allennlp.common import Lazy, Tqdm, cached_transformers
+from allennlp.common import util as common_util
+from allennlp.nn.util import move_to_device
+from allennlp.common.checks import ConfigurationError
+from allennlp.common.file_utils import cached_path, open_compressed
+from allennlp.common.util import END_SYMBOL, START_SYMBOL
+from allennlp.data import Batch, DataLoader, Instance, Token
+from allennlp.data.data_loaders.data_loader import DataLoader
+from allennlp.data.dataset_readers.dataset_reader import DatasetReader
+from allennlp.data.fields import IndexField, MetadataField, TextField
+from allennlp.data.instance import Instance
+from allennlp.data.token_indexers import (ELMoTokenCharactersIndexer,
+                                          SingleIdTokenIndexer,
+                                          TokenCharactersIndexer, TokenIndexer)
+from allennlp.data.tokenizers import (PretrainedTransformerTokenizer,
+                                      SpacyTokenizer, Token, Tokenizer)
+from allennlp.data.tokenizers.pretrained_transformer_tokenizer import \
+    PretrainedTransformerTokenizer
+from allennlp.models.model import Model
+from allennlp.modules import token_embedders
+from allennlp.modules.token_embedders import token_embedder
+from allennlp.modules.token_embedders.pretrained_transformer_embedder import \
+    PretrainedTransformerEmbedder
+from allennlp.nn.util import find_embedding_layer, find_text_field_embedder
+from allennlp.training.checkpointer import Checkpointer
+from allennlp.training.learning_rate_schedulers.learning_rate_scheduler import \
+    LearningRateScheduler
+from allennlp.training.momentum_schedulers.momentum_scheduler import \
+    MomentumScheduler
+from allennlp.training.moving_average import MovingAverage
+from allennlp.training.optimizers import Optimizer
+from allennlp.training.trainer import Trainer
+from allennlp.data import Vocabulary
+from allennlp_models.rc import BidirectionalAttentionFlow
+from allennlp_models.rc.dataset_readers import TransformerSquadReader
+from allennlp.training import util as training_util
 from torch.nn import CosineSimilarity
 
 """
@@ -31,6 +82,8 @@ IO utils
 ============================================
 """
 def find_load_folder(cur_dir):
+    """ find a folder called data from the project repository to parent(or parents') repositories
+    """
     # successfully exit
     if os.path.exists(os.path.join(cur_dir, 'data')):
         return os.path.join(cur_dir, 'data')
@@ -85,7 +138,7 @@ class LoadedDatasets(LoadedResource):
         elif dataset_name == "ag_news":
             dataset = load_dataset("ag_news")
             num_labels = 4
-        # binary sentiment classification
+        #################### binary sentiment classification #################### 
         elif dataset_name == "imdb":
             dataset = load_dataset("imdb", ignore_verifications=True)
             num_labels = 2
@@ -103,12 +156,16 @@ class LoadedDatasets(LoadedResource):
                 dataset_dict[split] = Dataset.from_dict({'text': texts, 'label':labels})
             dataset = DatasetDict(dataset_dict)
             num_labels = 2
+        ############################### GLUE ###############################
         elif dataset_name == "sst2":
             assert self.load_folder is not None
-            dataset = load_dataset("csv", column_names=["text", "label"],
-                                    data_files={"train": os.path.join(self.load_folder, "sst/train.csv"),
-                                        "dev": os.path.join(self.load_folder , "sst/dev.csv"),
-                                        "test": os.path.join(self.load_folder, "sst/test.csv"),})
+            dataset = load_dataset(
+                "csv", 
+                column_names=["text", "label"],
+                data_files={"train": os.path.join(self.load_folder, "sst/train.csv"),
+                    "dev": os.path.join(self.load_folder , "sst/dev.csv"),
+                    "test": os.path.join(self.load_folder, "sst/test.csv"),}
+                )
             num_labels = 2
         elif dataset_name == "mnli":
             dataset = load_dataset("glue", "mnli")
@@ -116,8 +173,23 @@ class LoadedDatasets(LoadedResource):
         elif dataset_name == "mrpc":
             dataset = load_dataset('glue', 'mrpc')
             num_labels = 2
+        ############################### QA ###############################
+        # dowload the QA data from https://github.com/michiyasunaga/LinkBERT
+        elif dataset_name == "squad":
+            pass
+        elif dataset_name == "hotpot_qa":
+            pass
+        elif dataset_name == "trivia_qa":
+            pass
+        elif dataset_name == "natural_questions":
+            pass
+        elif dataset_name == "news_qa":
+            pass
+        elif dataset_name == "search_qa":
+            pass
         else:
             raise Exception("Cannot find the dataset.")
+
         if self.shuffle:
             dataset = dataset.shuffle(seed=0)
         
@@ -138,13 +210,13 @@ Available models in huggingface hub
 # transformers
 # TODO: for consistency, use the name composed of `{PLM_name}-{dataset_name}`
 hf_lm_names = {
-
-    'bert-base-uncased' : 'bert-base-uncased',
+    'bert-base-uncased': 'bert-base-uncased',
     'roberta-base': 'roberta-base',
     'albert-base-v2': 'albert-base-v2',
-    'bert' : 'bert-base-uncased',
+
+    'bert': 'bert-base-uncased',
     'roberta': 'roberta-base',
-    'albert ': 'albert-base-v2'
+    'albert': 'albert-base-v2'
 }
 hf_model_names =  {
     # SQUAD
@@ -226,8 +298,14 @@ hf_model_names =  {
     # 'textattack/facebook-bart-large-MNLI',
     # 'facebook/bart-large-mnli',
 }
+def check_valid_name(model_name):
+    all_names = {**hf_model_names, **hf_lm_names}
+    try:
+        model_name = all_names[model_name]
+        return model_name
+    except KeyError:
+        print('Not valid model name!!! Valid template in RegExp: (bert|albert|roberta)-*(yelp|sst2|ag-news)*')
     
-
 """
 LoadedHfModels Class
 ============================================
@@ -325,7 +403,6 @@ class HfModelBundle:
             model_input["labels"] = torch.LongTensor([y]).unsqueeze(0)
         model_output = self.forward(model_input)
         return model_output
-        
 
     def forward(self, model_input, return_last_hidden_states=False):
         # to correct device
@@ -400,7 +477,6 @@ class HfModelBundle:
         sent_emb2 = self.get_sentence_embedding_from_words(words2)
         return cos_sim(sent_emb1, sent_emb2)
 
-
 class LoadedHfModelBundle(LoadedResource):
 
     def _load(self, name):
@@ -410,9 +486,129 @@ class LoadedHfModelBundle(LoadedResource):
 
 hf_model_bundles = LoadedHfModelBundle()
 
-@dataclass(frozen=True)
+from functools import lru_cache
+@dataclass
 class AllenNLPModelBundle:
-    pass
+    model: Module
+    vocab: Vocabulary
+
+    @property
+    def all_special_ids(self):
+        token_embedder = find_text_field_embedder(self.model).token_embedder_tokens
+        if isinstance(token_embedder, PretrainedTransformerEmbedder):
+            # get special ids
+            model_name = token_embedder.transformer_model.config._name_or_path
+            tokenizer = cached_transformers.get_tokenizer(model_name)
+            return tokenizer.all_special_ids
+        # elif isinstance(self.model, allennlp_extra.models.bart.Bart):
+        #     self.namespace = "tokens"
+        #     model_name = "facebook/" + self.model.bart.config._name_or_path
+        #     tokenizer = cached_transformers.get_tokenizer(model_name)
+        #     self.all_special_ids = tokenizer.all_special_ids
+        else:
+            return [
+                self.vocab._token_to_index[self.namespace][self.vocab._padding_token],
+                self.vocab._token_to_index[self.namespace][self.vocab._oov_token]
+            ]
+ 
+    @property
+    def namespace(self):
+        token_embedder = find_text_field_embedder(self.model).token_embedder_tokens
+        if isinstance(token_embedder, PretrainedTransformerEmbedder):
+            return "tags"
+        else:
+            return "tokens"
+
+    @property
+    def token_start_idx(self):
+        token_embedder = find_text_field_embedder(self.model).token_embedder_tokens
+        if  isinstance(token_embedder, PretrainedTransformerEmbedder):
+            # or isinstance(model, Bart) or isinstance(model, MySeq2Seq)
+            return 1  # exclude the first special token [CLS] for BERT or <s> for BART
+        else:
+            return 0
+    
+    @property
+    def embedding_layer(self):
+        # if isinstance(self.model, Bart):
+        #     return self.model.bart.model.shared
+        return find_embedding_layer(self.model)
+
+    @property
+    def embedding_matrix(self):
+        if isinstance(self.embedding_layer, 
+            (token_embedders.embedding.Embedding, 
+                torch.nn.Embedding, 
+                torch.nn.modules.sparse.Embedding)):
+            # If we're using something that already has an only embedding matrix, we can just use
+            # that and bypass this method.
+            return self.embedding_layer.weight
+        else: # other types in `allennlp.module.token_enbedders`
+            all_tokens = list(self.vocab._token_to_index[self.namespace])
+            inputs = self._make_embedder_input(all_tokens)
+
+            # pass all tokens through the fake matrix (i.e., embedding layer) and create an embedding out of it.
+            return self.embedding_layer(inputs).squeeze()
+
+    def _make_embedder_input(self, all_tokens: List[str]) -> Dict[str, torch.Tensor]:
+        """ copy from 
+        https://github.com/allenai/allennlp/blob/main/allennlp/interpret/attackers/hotflip.py
+        """
+        inputs = {}
+        
+        # A bit of a hack; this will only work with some dataset readers, but it'll do for now.
+        indexers = self.predictor._dataset_reader._token_indexers  # type: ignore
+        for indexer_name, token_indexer in indexers.items():
+            if isinstance(token_indexer, SingleIdTokenIndexer):
+                all_indices = [
+                    self.vocab._token_to_index[self.namespace][token] for token in all_tokens
+                ]
+                inputs[indexer_name] = {"tokens": torch.LongTensor(all_indices).unsqueeze(0)}
+            elif isinstance(token_indexer, TokenCharactersIndexer):
+                tokens = [Token(x) for x in all_tokens]
+                max_token_length = max(len(x) for x in all_tokens)
+                # sometime max_token_length is too short for cnn encoder
+                max_token_length = max(max_token_length, token_indexer._min_padding_length)
+                indexed_tokens = token_indexer.tokens_to_indices(tokens, self.vocab)
+                padding_lengths = token_indexer.get_padding_lengths(indexed_tokens)
+                padded_tokens = token_indexer.as_padded_tensor_dict(indexed_tokens, padding_lengths)
+                inputs[indexer_name] = {
+                    "token_characters": torch.LongTensor(
+                        padded_tokens["token_characters"]
+                    ).unsqueeze(0)
+                }
+            elif isinstance(token_indexer, ELMoTokenCharactersIndexer):
+                elmo_tokens = []
+                for token in all_tokens:
+                    elmo_indexed_token = token_indexer.tokens_to_indices(
+                        [Token(text=token)], self.vocab
+                    )["elmo_tokens"]
+                    elmo_tokens.append(elmo_indexed_token[0])
+                inputs[indexer_name] = {"elmo_tokens": torch.LongTensor(elmo_tokens).unsqueeze(0)}
+            else:
+                raise RuntimeError("Unsupported token indexer:", token_indexer)
+
+        return inputs
+
+    def evaluate_from_dataloader(self, validation_data_loader, get_loss=False):
+        self.model.eval()
+        val_generator_tqdm = Tqdm.tqdm(validation_data_loader)
+
+        total_val_loss = 0.0
+        val_batch_loss = 0.0
+        for batch in val_generator_tqdm:
+            batch_outputs = self.model(**batch)
+            if get_loss:
+                loss = batch_outputs.get("loss")
+                val_batch_loss = loss.item()
+                total_val_loss += val_batch_loss
+            val_metrics = self.model.get_metrics(reset=False)
+            description = training_util.description_from_metrics(val_metrics)
+            val_generator_tqdm.set_description(description, refresh=False)
+        if get_loss:
+            val_metrics['total_loss'] = total_val_loss
+        self.model.get_metrics(reset=True)
+        return val_metrics
 
 """
 Sentiment Lexicon
@@ -443,4 +639,3 @@ def get_sentiment_lexicon(n=50, simple_word=False):
     random.seed(20)
     neg_lexicon50 = random.sample(neg_lexicon, n)
     return pos_lexicon50, neg_lexicon50
-
