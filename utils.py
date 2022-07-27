@@ -1,3 +1,18 @@
+# coding=utf-8
+# Copyright 2022 Xinzhe Li All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 from itertools import islice
 from copy import Error
 from typing import Iterable, List
@@ -686,7 +701,8 @@ def get_grad(
     model: torch.nn.Module, 
     layer: torch.nn.Module, 
     loss_fct: _Loss = None,
-    batch_size: int = 16):
+    batch_size: int = 16,
+    return_tensors='np'):
     """ 
     # Parameters
 
@@ -766,6 +782,8 @@ def get_grad(
     model.train(mode=orig_mode)
     
     return_grad = np.concatenate(gradients_for_all, axis=0)
+    if return_tensors == 'pt':
+        return_grad = torch.from_numpy(return_grad)
        
     return return_grad, total_loss
 

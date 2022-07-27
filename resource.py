@@ -383,6 +383,16 @@ class HfModelBundle:
         }
         
         return wordpieces, offsets
+
+    def get_model_input_from_words(self, words1: List[str], words2: List[str]=None):
+        wordpieces, offsets = self.tokenize_from_words(words1, words2)
+        model_input = {
+            "input_ids": torch.LongTensor(wordpieces['input_ids']).unsqueeze(0),
+            "token_type_ids": torch.LongTensor(wordpieces['token_type_ids']).unsqueeze(0),
+            "attention_mask": torch.LongTensor(wordpieces['attention_mask']).unsqueeze(0), 
+            
+        }
+        return model_input
     
     def get_logit(self, words):
         model_output = self.get_model_output(words, y=None)
@@ -392,13 +402,8 @@ class HfModelBundle:
             return None
             
     def get_model_output(self, words, y=None):
-        wordpieces = self.tokenize_from_words(words)[0]
-        model_input = {
-            "input_ids": torch.LongTensor(wordpieces['input_ids']).unsqueeze(0),
-            "token_type_ids": torch.LongTensor(wordpieces['token_type_ids']).unsqueeze(0),
-            "attention_mask": torch.LongTensor(wordpieces['attention_mask']).unsqueeze(0), 
-            
-        }
+        model_input = self.get_model_input_from_words(words)
+        
         if y is not None:
             model_input["labels"] = torch.LongTensor([y]).unsqueeze(0)
         model_output = self.forward(model_input)
