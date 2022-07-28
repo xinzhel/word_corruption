@@ -384,6 +384,9 @@ class HfModelBundle:
         
         return wordpieces, offsets
 
+    def get_wordpiece_from_words(self, words):
+        return self.tokenize_from_words(words)[0]['token_str']
+
     def get_model_input_from_words(self, words1: List[str], words2: List[str]=None):
         wordpieces, offsets = self.tokenize_from_words(words1, words2)
         model_input = {

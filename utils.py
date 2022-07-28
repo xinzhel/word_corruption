@@ -15,7 +15,7 @@
 
 from itertools import islice
 from copy import Error
-from typing import Iterable, List
+from typing import Iterable, List, Dict, Any
 import numpy as np
 import torch
 import random
@@ -23,8 +23,8 @@ import os
 from torch import Tensor, backends
 from torch.nn.modules.loss import _Loss
 from torch.utils.hooks import RemovableHandle
-from allennlp.nn.util import move_to_device
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
+from allennlp.nn import util as nn_util
 
 from textflint.common.settings import MODIFIED_MASK
 from textflint.input.component.sample import Sample
@@ -41,6 +41,14 @@ from textattack.shared import utils
 from IPython.core.display import display, HTML
 from twitter import write_bearer_token_file
 
+# for interpretion
+import torch
+import math
+from transformers.modeling_utils import PreTrainedModel
+# from utils import get_grad
+# from typing import Union, List, Dict
+# import allennlp.nn.util as nn_util
+# import numpy as np
 
 def set_seed(seed):
     """ Set all seeds to make results reproducible """
@@ -51,6 +59,99 @@ def set_seed(seed):
     np.random.seed(seed)
     random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
+
+"""
+Interpret
+============================================
+"""
+class IntegratedGradient:
+    """ Code is written by refering to AllenNLP library
+    """
+    def __init__(self, model, embedding_layer=None) -> None:
+        self.model = model
+        if embedding_layer:
+            self.embedding_layer = embedding_layer
+        else:
+            self.embedding_layer = nn_util.find_embedding_layer(self.model)
+
+    def _register_hooks(self, embedding_layer, alpha: int, embeddings_list: List):
+
+        def forward_hook(module, inputs, output):
+            # Save the input for later use. Only do so on first call.
+            if alpha == 0:
+                embeddings_list.append(output.squeeze(0).clone().detach())
+
+            # Scale the embedding by alpha
+            output.mul_(alpha)
+
+        def forward_hook_for_hf_plm(module, inputs, output):
+            # Save the input for later use. Only do so on first call.
+            if alpha == 0:
+                embeddings_list.append(output.last_hidden_state.squeeze(0).clone().detach())
+
+            # Scale the embedding by alpha
+            # output.last_hidden_state.mul_(alpha)
+        
+        if isinstance(embedding_layer, PreTrainedModel):
+            return embedding_layer.register_forward_hook(forward_hook_for_hf_plm)
+        else:
+            return embedding_layer.register_forward_hook(forward_hook)
+
+
+    def _integrate_gradients(self, model_input, token_offsets: List[torch.Tensor]=None) -> Dict[str, np.ndarray]:
+        
+        ig_grads = None
+
+        # List of Embedding inputs
+        embeddings_list: List[torch.Tensor] = []
+
+        # Use 10 terms in the summation approximation of the integral in integrated grad
+        steps = 10
+
+        
+        # Exclude the endpoint because we do a left point integral approximation
+        for alpha in np.linspace(0, 1.0, num=steps, endpoint=False):
+            handles = []
+            # Hook for modifying embedding value
+            handle = self._register_hooks(self.embedding_layer, alpha, embeddings_list)
+
+            try:
+                grads, _ = get_grad(model_input, self.model, self.embedding_layer)
+                grads = torch.from_numpy(grads)
+            finally:
+                handle.remove()
+
+            # Running sum of gradients
+            if ig_grads is None:
+                ig_grads = grads
+            else:
+                ig_grads += grads
+
+        # Average of each gradient term
+        ig_grads /= steps
+
+        # Gradients come back in the reverse order that they were sent into the network
+        # embeddings_list.reverse()
+        # token_offsets.reverse()
+        # embeddings_list = self._aggregate_token_embeddings(embeddings_list, token_offsets)
+
+        # Element-wise multiply average gradient by the input
+        assert len(embeddings_list) == 1
+        input_embedding = embeddings_list[0]
+        ig_grads *= input_embedding
+
+        return ig_grads
+
+    def integrate_gradients(self, model_input):
+        ig_grads = self._integrate_gradients(model_input)
+        ig_grads = ig_grads.numpy() # shape: bsz, seq_len, emb_hidden_size
+        # The [0] here is undo-ing the batching that happens in get_gradients.
+        embedding_grad = np.sum(ig_grads[0], axis=1) # shape: seq_len,
+        norm = np.linalg.norm(embedding_grad, ord=1) # shape: 1
+        normalized_grad = [math.fabs(e) / norm for e in embedding_grad] # shape: seq_len
+        return normalized_grad
+
+
 
 """
 Visualize
@@ -737,7 +838,7 @@ def get_grad(
     # To bypass "RuntimeError: cudnn RNN backward can only be called in training mode"
     with backends.cudnn.flags(enabled=False):
         
-        dataset_tensor_dict = move_to_device(dataset_tensor_dict, cuda_device)
+        dataset_tensor_dict = nn_util.move_to_device(dataset_tensor_dict, cuda_device)
 
         # update in batch 
         gradients_for_all = []
