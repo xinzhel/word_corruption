@@ -2,96 +2,10 @@ import resource
 import pickle
 import random
 from tqdm import tqdm
-
-from textflint.input.component.sample import UTSample
 from utils import WIRSample, visualize_text_diff, Accent, TypoSwap, AddVowel, DeleteVowel, set_seed, KeyboardNoise
-from textflint.generation.transformation.UT import Keyboard, Typos
-
 import argparse
 
 
-
-class TextModifier:
-    def __init__(self, noisers):
-        self.noisers = noisers
-        self.total_count = 0
-        self.fail = dict()
-        self.fail_total = 0
-
-    def _textflint_transform(self, sample):
-
-        example = {}
-        example['x'] = sample.get_words('x') #sample.get_text('x')
-        
-        for noiser in self.noisers:
-            noiser_str = type(noiser).__name__.lower()
-            try:
-                # transform text
-                noisy_words = noiser.transform(sample, field='x', n=1)
-                example[f'x_{noiser_str}'] = noisy_words[0].get_words('x')
-                assert len(example['x'] ) == len(example[f'x_{noiser_str}'])
-
-            except IndexError:
-                example[f'x_{noiser_str}'] = None
-                try: 
-                    self.fail[noiser_str] += 1
-                except KeyError:
-                    self.fail[noiser_str] = 1
-                
-            self.total_count += 1
-        
-        return example
-
-    def _mix_transform(self, sample, num_generate = 10, max_try = 40):
-        
-        example = {}
-        example['x'] = sample.get_words('x') #sample.get_text('x')
-        wir = sample.wir
-        set_seed(22)
-        for i in range(num_generate):
-            generate_txt = []
-            for j, word in enumerate(example['x']):
-                if j not in wir or (not word.isalpha()):
-                    generate_txt.append(word)
-                    continue
-                tried = 0
-
-                while tried < max_try:
-                    # randomly select a noiser
-                    noiser = random.choice(self.noisers)
-                    # print(tried, noiser)
-                    # noise the word
-                    noisy_word = noiser._get_candidates( word, n=1)
-                    if len(noisy_word) > 0 and noisy_word[0] != word:
-                        generate_txt.append(noisy_word[0])
-                        break
-                    # print(word, 'to', noisy_word)
-                    # print(generate_txt)
-                    tried += 1
-                    if tried == max_try:
-                        self.fail_total += 1
-                        generate_txt.append(word)
-            
-            assert len(example['x'] ) == len( generate_txt )
-            example[f'x_noise{i}'] = generate_txt
-            self.total_count += 1
-
-        
-        return example
-
-    def transform(self, example, wir=None, n_modify=None, pct_modify=None, mix_transform=True):
-        y = example['y']
-        if wir:    
-            sample = WIRSample(example, wir=wir, n_modify=n_modify, pct_modify=pct_modify)
-        else:
-            raise Exception
-            sample = UTSample(example)
-        if mix_transform:
-            example = self._mix_transform(sample)
-        else:
-            example = self._textflint_transform(sample)
-        example['y'] = y
-        return example
 
 #     def wir_transform(self, wir=None, n_modify=None, pct_modify=None):
 #         """ Usage: `datasets.Dataset.map(hf_transform)`

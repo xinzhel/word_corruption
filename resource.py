@@ -173,6 +173,9 @@ class LoadedDatasets(LoadedResource):
         elif dataset_name == "mrpc":
             dataset = load_dataset('glue', 'mrpc')
             num_labels = 2
+        elif dataset_name == "qqp":
+            dataset = load_dataset("glue", "qqp")
+            num_labels = 2
         ############################### QA ###############################
         # dowload the QA data from https://github.com/michiyasunaga/LinkBERT
         elif dataset_name == "squad":
@@ -319,6 +322,7 @@ class LoadedHfModels(LoadedResource):
             model = AutoModelForMaskedLM.from_pretrained(hf_lm_names[name])
         return model
 
+
 hf_models = LoadedHfModels()
 
 """
@@ -334,7 +338,7 @@ class LoadedHfTokenizers(LoadedResource):
         valid_name = all_names[name]
             
         return AutoTokenizer.from_pretrained(valid_name)
-       
+
 
 hf_tokenizers = LoadedHfTokenizers()
 
@@ -363,6 +367,9 @@ class HfModelBundle:
             return all_names[self.model_name]
         return None
 
+    def __call__(self, text_input_list):
+        pass
+
     @property
     def all_special_ids(self):
         return self.tokenizer.all_special_ids
@@ -370,6 +377,11 @@ class HfModelBundle:
     def tokenize_from_words(self, words1: List[str], words2: List[str]=None):
         if getattr(self, "allennlp_tokenizer", None) is None:
             self.allennlp_tokenizer = PretrainedTransformerTokenizer(self.full_model_name)
+        if "roberta" in self.full_model_name:
+            # during segmentation, bpe treats words with/w.o space as different cases
+            words1 = [' '+ word for word in words1]
+            if words2 is not None:
+                words2 = [' '+ word for word in words2]
         if words2 is None:
             wordpieces, offsets = self.allennlp_tokenizer.intra_word_tokenize(words1)
         else:
@@ -387,24 +399,34 @@ class HfModelBundle:
     def get_wordpiece_from_words(self, words):
         return self.tokenize_from_words(words)[0]['token_str']
 
-    def get_model_input_from_words(self, words1: List[str], words2: List[str]=None):
+    def get_model_input_from_words(self, words1: List[str], words2: List[str]=None, masked_indices=[]):
         wordpieces, offsets = self.tokenize_from_words(words1, words2)
+        
         model_input = {
             "input_ids": torch.LongTensor(wordpieces['input_ids']).unsqueeze(0),
             "token_type_ids": torch.LongTensor(wordpieces['token_type_ids']).unsqueeze(0),
             "attention_mask": torch.LongTensor(wordpieces['attention_mask']).unsqueeze(0), 
             
         }
+        for i in masked_indices:
+            mask_id = self.tokenizer.convert_tokens_to_ids(self.tokenizer._mask_token)
+            model_input['input_ids'][0][offsets[i][0]: offsets[i][1]+1] = mask_id
+            
         return model_input
     
-    def get_logit(self, words):
-        model_output = self.get_model_output(words, y=None)
+    def get_logit_from_words(self, words):
+        model_output = self.get_model_output_from_words(words, y=None)
         if isinstance(model_output, SequenceClassifierOutput):
-            return model_output.logits[0]
+            return model_output.logits[0].detach().cpu()
         else: 
             return None
+    
+    def get_probs_from_words(self, words):
+        logit = self.get_logit_from_words(words)
+        return torch.nn.functional.softmax(logit, dim=0)
+        
             
-    def get_model_output(self, words, y=None):
+    def get_model_output_from_words(self, words, y=None):
         model_input = self.get_model_input_from_words(words)
         
         if y is not None:
@@ -618,32 +640,4 @@ class AllenNLPModelBundle:
         self.model.get_metrics(reset=True)
         return val_metrics
 
-"""
-Sentiment Lexicon
-============================================
-"""
-def get_sentiment_lexicon(n=50, simple_word=False):
-    tagged_neg = nltk.pos_tag(list(opinion_lexicon.negative()))
-    tagged_pos = nltk.pos_tag(list(opinion_lexicon.positive()))
-    pos_lexicon = [] 
-    neg_lexicon = []
-    for word, tag in tagged_pos:
-        if tag == 'JJ': # adjective
-            pos_lexicon.append(word)
 
-    for word, tag in tagged_neg:
-        if tag == 'JJ':
-            neg_lexicon.append(word)
-    def is_simple_word(word):
-        # hf_tokenizers['bert-base-uncased'].tokenize(word)
-        return True
-
-    if simple_word:
-        pos_lexicon = [w for w in pos_lexicon if is_simple_word(w) ]
-        neg_lexicon = [w for w in neg_lexicon if is_simple_word(w) ]
-
-    random.seed(20)
-    pos_lexicon50 = random.sample(pos_lexicon, n)
-    random.seed(20)
-    neg_lexicon50 = random.sample(neg_lexicon, n)
-    return pos_lexicon50, neg_lexicon50

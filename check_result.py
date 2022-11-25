@@ -6,7 +6,7 @@ import argparse
 import os
 from resource import check_valid_name
 
-def read_df(output_dir, dataset_name, model_name):
+def read_df(output_dir, dataset_name, model_name, mode = None, seq_max_len=None,):
     # texts
     with open(f'{output_dir}/{dataset_name}_noisy.pickle', 'rb') as file:
         noisy_data = pickle.load(file)
@@ -20,6 +20,29 @@ def read_df(output_dir, dataset_name, model_name):
     df['countN'] = df['N_sets'].apply(lambda x: len(x[0]))
     df['text'] = [noisy_data[index][f'x'] for index in df['index']]
     df['noisy_txt'] = [noisy_data[index][f'x_{noise_type}'] for index, noise_type in zip(df['index'], df['noise_type'])]
+
+
+        # for seq_max_len
+    valid_index = []
+    if seq_max_len is not None:
+        for index, data in noisy_data:
+            if len(data['x']) < seq_max_len:
+                valid_index.append(index)
+        print('Valid Length: ', len(valid_index))
+        df = df[[True if i in valid_index else False for i in df['index'] ]]
+    print('All noisy words: ', len(df))
+    # for intact word corruption
+    if mode == 'intact':
+        df = df[df.mode=='intact']
+        print('Intact Word Corruption: ', len(df))
+    elif mode == "partial":
+        df = df[df.countO>=1][df.countN>0]
+        print('Partial Word Corruption: ', len(df))
+        df['countM_by_O'] = [cm/co for cm, co in zip(df['countM'], df['countO'])]
+        df['countM_by_O_round'] = [round(cm/co) for cm, co in zip(df['countM'], df['countO'])]
+    elif mode is None:
+        pass
+
     return df, noisy_data
 
 def evaluate(
@@ -40,28 +63,8 @@ def evaluate(
          for LM for sentiment lexicon, we return all the samples
     """ 
     model_name = check_valid_name(model_name)
-    df, noisy_data = read_df(output_dir, dataset_name, model_name)
-    
-    # for seq_max_len
-    valid_index = []
-    if seq_max_len is not None:
-        for index, data in noisy_data:
-            if len(data['x']) < seq_max_len:
-                valid_index.append(index)
-        print('Valid Length: ', len(valid_index))
-        df = df[[True if i in valid_index else False for i in df['index'] ]]
-    print('All noisy words: ', len(df))
-    # for intact word corruption
-    if mode == 'intact':
-        df = df[df.countO== 1][df.wcr1 == 1]
-        print('Intact Word Corruption: ', len(df))
-    elif mode == "partial":
-        df = df[df.countO>=1][df.countN>0]
-        print('Partial Word Corruption: ', len(df))
-        df['countM_by_O'] = [cm/co for cm, co in zip(df['countM'], df['countO'])]
-        df['countM_by_O_round'] = [round(cm/co) for cm, co in zip(df['countM'], df['countO'])]
-    elif mode == "all":
-        pass
+    df, noisy_data = read_df(output_dir, dataset_name, model_name, mode = mode, seq_max_len=seq_max_len,)
+
     
     # no compound words
     if dataset_name == "sentiment-lexicon":

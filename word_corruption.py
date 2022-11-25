@@ -1,234 +1,175 @@
+
 import resource
 import pickle
+import json
+import torch
 
 import pandas as pd
 import argparse
 from tqdm import tqdm
 from torch.nn import CosineSimilarity
 import numpy as np
+from multiset import Multiset
 from numpy.linalg import norm
 
-class Evaluator:
-    def __init__(self, model_bundle, data_embeddings, debug=False):
-        self.model_bundle = model_bundle
-        self.data_embeddings = data_embeddings
+def calculate_corruption_scores(model_bundle, words, noisy_words):
+    
+    assert len(words) == 1
+    assert words[0] != noisy_words[0]
+    tokens, offsets = model_bundle.tokenize_from_words( words )
+    tokens = tokens['token_str']
+    tokens = [token.translate(token.maketrans('', '', '▁#Ġ')) for token in tokens] # remove substring indicators
 
-        self.all_examples = []
-        self.cos_sim = CosineSimilarity(dim=1)
-        self.debug = debug # print information
-
-    def add_to_groups(self, index, noisy_example, debug=False):
-        if debug:
-            self.debug = True
-        noisy_example = self.calculate_wcs(noisy_example,)
-
-        noiser_names = [k[2:] for k in noisy_example.keys() if k.startswith('x_')]
-        y = noisy_example['y']
-        logit_clean = self.model_bundle.get_logit( noisy_example['x'],)
-        if logit_clean is not None:
-            logit_clean = logit_clean.detach().cpu()
-
-        # loop over all noisy version of this sample
-        result = []
-        for noiser_str in noiser_names:
-            if noisy_example['x_'+noiser_str] is None:
-                continue
-            # sent sim
-            sim = self.get_cosine_sim(index, noisy_example['x_'+noiser_str],  noisy_example['x'])
-           
-            # pred
-            logit = self.model_bundle.get_logit( noisy_example['x_'+noiser_str], )
-            if logit is not None:
-                logit = logit.detach().cpu()
-
-            result.append({'index':index, 
-                 'label': y, 
-                 'noise_type': noiser_str, 
-                 'countM': noisy_example[f'countM_{noiser_str}'] ,
-                 'countM_by_word_len': noisy_example[f'countM_by_word_len_{noiser_str}'] ,
-                 'dispersion_score': noisy_example[f'dispersion_score_{noiser_str}'] ,
-                 'countM_round': round(noisy_example[f'countM_{noiser_str}'] ), 
-                 'countM_by_word_len_round': round(noisy_example[f'countM_by_word_len_{noiser_str}'],2 ), 
-                 'countO': noisy_example[f'countO_{noiser_str}'],
-                 'countO_round': round(noisy_example[f'countO_{noiser_str}'] ),
-                 'wcr1': noisy_example[f'wcr1_{noiser_str}'],
-                 'wcr2': noisy_example[f'wcr2_{noiser_str}'],
-                 'cos_sim': sim.detach().item(), 
-                 'logit': logit,
-                 'logit_clean': logit_clean,
-                 'O_sets': noisy_example[f'O_sets_{noiser_str}'],
-                 'M_sets': noisy_example[f'M_sets_{noiser_str}'],
-                 'N_sets': noisy_example[f'N_sets_{noiser_str}']
-                 })
-   
-        self.all_examples.extend(
-            result
-        )
-        return result
-            
+    tokens_noisy, offsets_noisy = model_bundle.tokenize_from_words(noisy_words)  
+    tokens_noisy = tokens_noisy['token_str']
+    tokens_noisy = [token.translate(token.maketrans('', '', '▁#Ġ')) for token in tokens_noisy]
+    
+    result = {
+        'tokens': tokens, 'tokens_noisy': tokens_noisy, 'type': None,
+        'overlap_set': None, 'missing_set': None, 'additive_set': None, 
         
-    def calculate_wcs(self, example):  # a dictionary [a list of words]
-        """ calculate word corruption scores
-        """
+        'countM': 0, 'countO': 0, 'countA': 0, 
+        # 'countA_unique':0, 
+        'countM_by_countS': 0, 'countA_by_char': 0, 'avg_char_in_A':0,
+        }
+
+    for i, (offset, offset_noisy) in enumerate(zip(offsets, offsets_noisy)): # for each word 
         
-        tokens, offsets = self.model_bundle.tokenize_from_words( example['x'] )
-        tokens = tokens['token_str']
-        noiser_names = [k[2:] for k in example.keys() if k.startswith('x_')]
-        for noiser_str in noiser_names:
-            if example[f'x_{noiser_str}'] is None:
-                continue
-            words = example[f'x']
-            # tokenize and calculate increased subwords after transformation
-            tokens_noisy, offsets_noisy = self.model_bundle.tokenize_from_words(example[f'x_{noiser_str}'])  
-            tokens_noisy = tokens_noisy['token_str']
-            
-            O_sets = []
-            M_sets = []
-            N_sets = []
-            countM = 0
-            countM_by_word_len = 0
-            dispersion_score = 0
-            countO = 0
-            wcr1 = 0
-            wcr2 = 0
-            num_context_words = 0
-            for i, (offset, offset_noisy) in enumerate(zip(offsets, offsets_noisy)):
-                # word corruption score for a single word
-                token_set = tokens[offset[0]:offset[1] + 1]
-                token_set_noisy = tokens_noisy[offset_noisy[0]:offset_noisy[1] + 1]
-                token_set = [token.translate(token.maketrans('', '', '_#')) for token in token_set]
-                token_set_noisy = [token.translate(token.maketrans('', '', '_#')) for token in token_set_noisy]
-                if self.debug:
-                    print(noiser_str)
-                    print(token_set)
-                    print(token_set_noisy)
-                
-                 # not context word
-                if token_set == token_set_noisy:
-                    continue
+        # word corruption score for a single word
+        token_set = tokens[offset[0]:offset[1] + 1]
+        token_set_noisy = tokens_noisy[offset_noisy[0]:offset_noisy[1] + 1]
 
-                # sets
-                overlap_set = set(token_set) & set(token_set_noisy)
-                missing_set = set(token_set).difference(overlap_set)
-                corruption_set = set(token_set_noisy).difference(overlap_set) #(set(token_set) | set(token_set_noisy)).difference(set(token_set))
-                M_sets.append(corruption_set )
-                
-                countM += len(corruption_set) 
-                assert isinstance(words[i], str) and len(words[i]) > 0
-                countM_by_word_len += len(corruption_set) / len(words[i]) # count M
-                if dispersion_score!=-1:
-                    if len(missing_set) != 0:
-                        dispersion_score += len(corruption_set) / len(''.join(missing_set)) 
-                    else:
-                        dispersion_score = -1
-                wcr1 += len(corruption_set) / len(set(token_set_noisy))
+        assert token_set != token_set_noisy # Just in case. I donot think any tokenizer which would tokenizes different words into same tokens
 
-                # discard set
-                discard_token_set = (set(token_set) | set(token_set_noisy)).difference(set(token_set_noisy))
-                O_sets.append(discard_token_set)
-                countO += len(discard_token_set)
-                wcr2 += len(discard_token_set) / len(set(token_set))
+        overlap_set = Multiset(token_set) & Multiset(token_set_noisy) 
+        missing_set = Multiset(token_set).difference(overlap_set)
+        additive_set = Multiset(token_set_noisy).difference(overlap_set) #(set(token_set) | set(token_set_noisy)).difference(set(token_set))
+        
+        result['countA'] += len(additive_set) 
+        if result['countA'] == 0 and result['countM'] == 0 : 
+            return None
+        # result['countA_unique'] += len(additive_set.distinct_elements()) 
+        result['countM'] += len(missing_set) 
+        result['countO'] += len(overlap_set) 
+        result['avg_char_in_A'] +=  len(''.join(additive_set)) / len(additive_set) # average char length of additive tokens
+        
+        result['countM_by_countS'] += len(missing_set) / (len(missing_set)+len(overlap_set))
+        
+    result['overlap_set'] = dict(overlap_set._elements)
+    result['missing_set'] = dict(missing_set._elements)
+    result['additive_set'] = dict(additive_set._elements)
 
-                # agreement set
-                intersection_set = set(token_set_noisy) & set(token_set)
-                N_sets.append(intersection_set)
-                
-                num_context_words += 1 
-            try:
-                # calculate the number of subwords, which equals to character editings
-                # num_context_words = jiwer.compute_measures(example['x'], example[f'x_{noiser_str}'])['wer']
-                # which indicates that the number of additional subwords each edit brings on average.
-                example[f'countM_{noiser_str}'] = countM / num_context_words
-                example[f'countM_by_word_len_{noiser_str}'] = countM_by_word_len / num_context_words
-                example[f'dispersion_score_{noiser_str}'] = dispersion_score / num_context_words if dispersion_score != -1 else -1
-                example[f'countO_{noiser_str}'] = countO / num_context_words
-                example[f'wcr1_{noiser_str}'] = wcr1 / num_context_words
-                example[f'wcr2_{noiser_str}'] = wcr2 / num_context_words
-                example[f'O_sets_{noiser_str}'] = O_sets
-                example[f'M_sets_{noiser_str}'] = M_sets
-                example[f'N_sets_{noiser_str}'] = N_sets
-
-                
-            except ZeroDivisionError:
-                if not noiser_str == 'accent' and self.debug:
-                    print(noiser_str, ' has no change.')
-                    print(example['x'])
-                    print(example[f'x_{noiser_str}'])
-                example[f'x_{noiser_str}'] = None
-
-        return example
-
-    def get_cosine_sim(self, index, words, ref_words=None):
-        if self.debug:
-            print(words, ref_words, )
-        if self.data_embeddings is not None:
-            sent_emb1 = self.data_embeddings[index].unsqueeze(0)
+    if result['countO'] == 0:
+        if result['countM'] == 1:
+            result['type'] = 'intact'
         else:
-            sent_emb1 = self.model_bundle.get_sentence_embedding_from_words(ref_words)
-        sent_emb2 = self.model_bundle.get_sentence_embedding_from_words(words)
-        assert sent_emb1.shape == sent_emb2.shape
-        result = self.cos_sim(sent_emb1, sent_emb2)
-        # result = (sent_emb1 - sent_emb2).pow(2).sum(1).sqrt()
-        # result = np.dot(sent_emb1, sent_emb2)/(norm(sent_emb1)*norm(sent_emb2))
-        return result
+            result['type'] = 'complete'
 
+    elif result['countM'] > 0 and result['countA'] > 0 and result['countO'] > 0:
+        result['type'] = 'partial'
+    elif result['countM'] == 0:
+        assert result['countA'] > 0 and result['countO'] > 0
+        result['type'] = 'additive'
+    elif result['countA'] == 0:
+        assert result['countM'] > 0 and result['countO'] > 0
+        result['type'] = 'missing'
+    else: 
+        print(tokens)
+        print(tokens_noisy)
+        raise Exception('There is an unexpected corruption type.')
+    
+    return result
+
+# additive corruption: the impact of additive subwords 单纯的增加additive subwords有影响
+# 'sim': 0.8151810765266418, 'wrong_pred': 0}
+# ['[CLS]', 'bad', 'd', 'dd', 'dd', 'dd', '[SEP]']
+
+# 'sim': 0.8187543153762817, 'wrong_pred': 0
+# ['[CLS]', 'baa', 'ad', '[SEP]']
+# sim': 0.8022822141647339, 'wrong_pred': 0
+#  ['[CLS]', 'baa', 'a', 'ad', '[SEP]']
+
+# 'sim': 0.7644551396369934, 'wrong_pred': 0
+# ['[CLS]', 'baa', 'aaa', 'd', '[SEP]'],
+# sim': 0.6670364737510681, 'wrong_pred': 0
+# ['[CLS]', 'baa', 'aaa', 'aaa', 'aaa', 'aaa', 'aaa', 'aaa', 'aaa', 'aaa', 'd', '[SEP]']
+
+
+# 但影响有限, converge to 一个值，我认为这就是  completely lose semantics的界定
+
+
+# one important additive subwords 会产生背离的semantics,比如 add会有正向含义(Hypothesis: 长的更有可能遭遇worse semantic correlation这是一点)
+# sim': 0.03979116678237915, 'wrong_pred': 1
+# ['[CLS]', 'ba', 'add', 'd', '[SEP]']
+# 'sim': 0.3354472815990448, 'wrong_pred': 0
+#  ['[CLS]', '', 'bb', 'bb', 'aaa', 'add', 'd', 'dd', '[SEP]']
+# 'sim': 0.6935935616493225, 'wrong_pred': 0}
+# ['[CLS]', '', 'bb', 'ba', 'a', 'aaa', 'add', 'dd', 'dd', '[SEP]']
+
+
+def get_cosine_sim( model_bundle, word, ref_word):
+    sent_emb1 = model_bundle.get_sentence_embedding_from_words([ref_word])
+    sent_emb2 = model_bundle.get_sentence_embedding_from_words([word])
+    assert sent_emb1.shape == sent_emb2.shape
+    
+    result = CosineSimilarity(dim=1)(sent_emb1, sent_emb2)
+    # result = (sent_emb1 - sent_emb2).pow(2).sum(1).sqrt()
+    # result = np.dot(sent_emb1, sent_emb2)/(norm(sent_emb1)*norm(sent_emb2))
+    return result
 
 
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Generating...")
-    parser.add_argument("--dataset_name", default="sst2", type=str,)
+    parser.add_argument("--dataset_name", default="neg-typos", type=str,)
     parser.add_argument("--model_name", default="albert-base-v2-SST-2", type=str,)
-    parser.add_argument("--mix_transform", action='store_true') # default False
     args = parser.parse_args()
     dataset_name = args.dataset_name
     model_name=args.model_name
-    mix_transform = args.mix_transform
-    # if mix_transform and dataset_name == "sentiment-lexicon":
-    #     mix_transform = False
-    if mix_transform:
-        print('!!!Would apply mixed noise on sentences (not work for words in lexicon)')
-        output_dir = "outputs_local_mixed_noise"
-    else:
-        output_dir = "outputs_local_single_noise"
+    output_dir = "outputs"
+    file_name = f'{output_dir}/{dataset_name}.json'
 
-    
-    pct_modify = None # especially use to noise all the words in sentences
-    debug=False
-    
- 
-    if pct_modify is not None:
-        file_name = f'{output_dir}/{dataset_name}_noisy_{pct_modify}.pickle'
-    else:
-        file_name = f'{output_dir}/{dataset_name}_noisy.pickle'
-    with open(file_name, 'rb') as file:
-        noisy_data = pickle.load(file)
+    with open(file_name, 'r') as file:
+        noisy_data = json.load(file)
 
     model_bundle = resource.hf_model_bundles[model_name]
     model_bundle.model = model_bundle.model.to("cuda:0")
 
-    if dataset_name == 'sentiment-lexicon':
-        data_embeddings = None
+    if "neg" in dataset_name:
+        label = 0
+    elif "pos" in dataset_name:
+        label = 1
     else:
-        ref_text = resource.datasets[dataset_name][0]['test']['text']
-        data_embeddings = model_bundle.get_sentence_embedding(ref_text)
-
-    evaluator = Evaluator(model_bundle, data_embeddings, debug=debug)
+        raise Exception("Dataset name is not valid.")
 
     print('Example: \n')
-    print(noisy_data[0])
-    
-    for index, noisy_sample in tqdm(noisy_data):
-        if dataset_name == 'sentiment-lexicon':
-            noisy_sample['y'] = None
-        result = evaluator.add_to_groups(index, noisy_sample)
-        # if debug:
-        #     print(result)
+    result_list = list()
+    for (clean_word, noisy_words) in tqdm(noisy_data.items()):
+        
+        for noisy_word in noisy_words:
+            clean_probs = model_bundle.get_probs_from_words( [clean_word],)
+            noisy_probs = model_bundle.get_probs_from_words( [noisy_word],)
+            result = { 
+                    'clean_word': clean_word,
+                    'clean_pred': torch.argmax(clean_probs).item() == label,
+                    'clean_prob': clean_probs.tolist()[label], # probability for the correct class
 
-    if pct_modify is not None:
-        file_name = f'{output_dir}/{dataset_name}_{model_name}_{pct_modify}.pickle'
-    else:
-        file_name = f'{output_dir}/{dataset_name}_{model_name}.pickle'
+                    'noisy_word': noisy_word,
+                    'noisy_pred': torch.argmax(noisy_probs).item() == label,
+                    'noisy_prob': noisy_probs.tolist()[label], # probability for the correct class}
+
+                    'sim': get_cosine_sim(model_bundle, noisy_word,  clean_word).detach().item()
+                    }
+
+            # corruption information
+            res = calculate_corruption_scores(model_bundle, [clean_word], [noisy_word])
+            if res is None:
+                print(clean_word+' and '+noisy_word+' have the same segmentation.')
+            else:
+                result.update(res)
+                result_list.append(result)
+
+    file_name = f'{output_dir}/result-{dataset_name}-{model_name}.json'
     print('Saving result into: ', file_name)
-    with open(file_name, 'wb') as file:
-        pickle.dump(evaluator.all_examples , file)
+    with open(file_name, 'w') as file:
+        json.dump(result_list, file, indent=4)
