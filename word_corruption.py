@@ -106,18 +106,6 @@ def calculate_corruption_scores(model_bundle, words, noisy_words):
 # 'sim': 0.6935935616493225, 'wrong_pred': 0}
 # ['[CLS]', '', 'bb', 'ba', 'a', 'aaa', 'add', 'dd', 'dd', '[SEP]']
 
-
-def get_cosine_sim( model_bundle, word, ref_word):
-    sent_emb1 = model_bundle.get_sentence_embedding_from_words([ref_word])
-    sent_emb2 = model_bundle.get_sentence_embedding_from_words([word])
-    assert sent_emb1.shape == sent_emb2.shape
-    
-    result = CosineSimilarity(dim=1)(sent_emb1, sent_emb2)
-    # result = (sent_emb1 - sent_emb2).pow(2).sum(1).sqrt()
-    # result = np.dot(sent_emb1, sent_emb2)/(norm(sent_emb1)*norm(sent_emb2))
-    return result
-
-
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Generating...")
@@ -126,7 +114,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     dataset_name = args.dataset_name
     model_name=args.model_name
-    output_dir = "outputs"
+    output_dir = "data"
     file_name = f'{output_dir}/{dataset_name}.json'
 
     with open(file_name, 'r') as file:
@@ -158,7 +146,7 @@ if __name__ == "__main__":
                     'noisy_pred': torch.argmax(noisy_probs).item() == label,
                     'noisy_prob': noisy_probs.tolist()[label], # probability for the correct class}
 
-                    'sim': get_cosine_sim(model_bundle, noisy_word,  clean_word).detach().item()
+                    'sim': model_bundle.get_cos_sim(noisy_word,  clean_word).detach().item()
                     }
 
             # corruption information

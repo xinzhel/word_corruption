@@ -505,7 +505,14 @@ class HfModelBundle:
         cos_sim = CosineSimilarity(dim=1)
         sent_emb1 = self.get_sentence_embedding_from_words(words1)
         sent_emb2 = self.get_sentence_embedding_from_words(words2)
-        return cos_sim(sent_emb1, sent_emb2)
+
+        # result = (sent_emb1 - sent_emb2).pow(2).sum(1).sqrt()
+        # result = np.dot(sent_emb1, sent_emb2)/(norm(sent_emb1)*norm(sent_emb2))
+        assert sent_emb1.shape == sent_emb2.shape
+        
+        return CosineSimilarity(dim=1)(sent_emb1, sent_emb2)
+
+
 
 class LoadedHfModelBundle(LoadedResource):
 

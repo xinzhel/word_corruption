@@ -4,7 +4,7 @@ import json
 import re 
 from .utils import get_sentiment_lexicon
 
-with open("../data/twitter/sentiment140.csv", 'r') as f:
+with open("twitter_sentiment140.csv", 'r') as f:
     text_to_search = f.readlines()
 text_to_search = [text_to_search[i][:-3] for i in range(len(text_to_search))]
 text_to_search_str = ''.join(text_to_search)
