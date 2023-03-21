@@ -4,3 +4,5 @@ debug.py
 outputs_local*/
 outputs_local_single_noise/
 .python-version
+data/training.1600000.processed.noemoticon.csv
+data/twitter_sentiment140.csv

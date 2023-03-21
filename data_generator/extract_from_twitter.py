@@ -2,9 +2,9 @@
 
 import json
 import re 
-from .utils import get_sentiment_lexicon
+from utils import get_sentiment_lexicon
 
-with open("twitter_sentiment140.csv", 'r') as f:
+with open("data/twitter_sentiment140.csv", 'r') as f:
     text_to_search = f.readlines()
 text_to_search = [text_to_search[i][:-3] for i in range(len(text_to_search))]
 text_to_search_str = ''.join(text_to_search)
@@ -68,12 +68,12 @@ print(len(pos_lexicon), len(neg_lexicon)) # 710 1441
 # pos_reduplications = search_reduplications(text_to_search_str, pos_lexicon)
 # print('pos_reduplications:', len(pos_reduplications), ) # 179
 # new_results = {clean: list(noisy)  for clean, noisy in pos_reduplications.items()}
-# json.dump(new_results, open('pos_reduplications.json', 'w'), sort_keys=True, indent=4)
+# json.dump(new_results, open('data/pos-reduplications.json', 'w'), sort_keys=True, indent=4)
 # 
 pos_abbreviations = search_abbreviation(text_to_search_str, pos_lexicon)
 print('pos_abbreviations:', len(pos_abbreviations)) # 126
 new_results = {clean: list(noisy)  for clean, noisy in pos_abbreviations.items()}
-json.dump(new_results, open('pos_abbreviations.json', 'w'), sort_keys=True, indent=4)
+json.dump(new_results, open('data/pos-abbreviations.json', 'w'), sort_keys=True, indent=4)
 
 # neg_reduplications = search_reduplications(text_to_search_str, neg_lexicon)
 # print('neg_reduplications:', len(neg_reduplications), ) # 286
@@ -83,7 +83,7 @@ json.dump(new_results, open('pos_abbreviations.json', 'w'), sort_keys=True, inde
 neg_abbreviations = search_abbreviation(text_to_search_str, neg_lexicon)
 print('neg_abbreviations:', len(neg_abbreviations)) # 271
 new_results = {clean: list(noisy)  for clean, noisy in neg_abbreviations.items()}
-json.dump(new_results, open('neg_abbreviations.json', 'w'), sort_keys=True, indent=4)
+json.dump(new_results, open('data/neg-abbreviations.json', 'w'), sort_keys=True, indent=4)
 
 
 

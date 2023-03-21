@@ -46,14 +46,15 @@ def calculate_corruption_scores(model_bundle, words, noisy_words):
         additive_set = Multiset(token_set_noisy).difference(overlap_set) #(set(token_set) | set(token_set_noisy)).difference(set(token_set))
         
         result['countA'] += len(additive_set) 
+        result['countM'] += len(missing_set) 
         if result['countA'] == 0 and result['countM'] == 0 : 
+            print('Overlap set: ', overlap_set)
             return None
         # result['countA_unique'] += len(additive_set.distinct_elements()) 
-        result['countM'] += len(missing_set) 
-        result['countO'] += len(overlap_set) 
-        result['avg_char_in_A'] +=  len(''.join(additive_set)) / len(additive_set) # average char length of additive tokens
         
-        result['countM_by_countS'] += len(missing_set) / (len(missing_set)+len(overlap_set))
+        result['countO'] += len(overlap_set) 
+        result['avg_char_in_A'] +=  len(''.join(additive_set)) / len(additive_set) if len(additive_set) else -1 # average char length of additive tokens
+        result['countM_by_countS'] += len(missing_set) / (len(missing_set)+len(overlap_set)) if len(missing_set)+len(overlap_set) else -1
         
     result['overlap_set'] = dict(overlap_set._elements)
     result['missing_set'] = dict(missing_set._elements)
@@ -109,8 +110,8 @@ def calculate_corruption_scores(model_bundle, words, noisy_words):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Generating...")
-    parser.add_argument("--dataset_name", default="neg-typos", type=str,)
-    parser.add_argument("--model_name", default="albert-base-v2-SST-2", type=str,)
+    parser.add_argument("--dataset_name", default="pos-abbreviations", type=str,)
+    parser.add_argument("--model_name", default="roberta-base-SST-2", type=str,)
     args = parser.parse_args()
     dataset_name = args.dataset_name
     model_name=args.model_name

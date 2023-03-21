@@ -1,0 +1,2268 @@
+{
+    "abundant": [
+        "andn",
+        "abdnt",
+        "abdn",
+        "annt",
+        "andt"
+    ],
+    "accessable": [
+        "asbl"
+    ],
+    "accessible": [
+        "asbl"
+    ],
+    "accommodative": [
+        "amdv",
+        "actv"
+    ],
+    "accomodative": [
+        "amdv",
+        "actv"
+    ],
+    "accomplishment": [
+        "alst",
+        "acls",
+        "amph",
+        "amps",
+        "ampst",
+        "ammn",
+        "aplh",
+        "ashm",
+        "amnt",
+        "ammt",
+        "apsn",
+        "ampt",
+        "acst",
+        "asht",
+        "alsh",
+        "ampl",
+        "apst",
+        "ashn",
+        "apmnt",
+        "alsm",
+        "apsh",
+        "apht",
+        "ampn",
+        "ashmt",
+        "acnt",
+        "amsh",
+        "achm",
+        "acht",
+        "aplm",
+        "acmplsh",
+        "almt",
+        "acmh",
+        "amst",
+        "amlnt",
+        "alsn"
+    ],
+    "achievable": [
+        "ahbl",
+        "avbl",
+        "achv"
+    ],
+    "achievement": [
+        "acnt",
+        "achm",
+        "achv",
+        "avnt",
+        "achvt",
+        "acht",
+        "amnt"
+    ],
+    "achievible": [
+        "ahbl",
+        "avbl",
+        "achv"
+    ],
+    "adaptable": [
+        "aptb",
+        "adbl",
+        "aptl"
+    ],
+    "adjustable": [
+        "adsb",
+        "adsl",
+        "ajst",
+        "ajbl",
+        "astl",
+        "adbl",
+        "adjs",
+        "asbl",
+        "adst"
+    ],
+    "admirable": [
+        "amrb",
+        "adbl",
+        "ambl",
+        "adml"
+    ],
+    "adorable": [
+        "adbl"
+    ],
+    "advanced": [
+        "advn",
+        "advd",
+        "advc",
+        "advnc"
+    ],
+    "advantageous": [
+        "angs",
+        "advt",
+        "avnt",
+        "advn",
+        "advnt",
+        "advs",
+        "avgs",
+        "avns",
+        "ants",
+        "antg"
+    ],
+    "adventurous": [
+        "anrs",
+        "advt",
+        "avnt",
+        "adnr",
+        "adrs",
+        "antr",
+        "advn",
+        "adtr",
+        "advnt",
+        "advs",
+        "avns",
+        "ants"
+    ],
+    "affirmative": [
+        "artv"
+    ],
+    "affordable": [
+        "adbl",
+        "afrd"
+    ],
+    "afordable": [
+        "adbl",
+        "afrd"
+    ],
+    "agreeable": [
+        "agrl",
+        "agbl"
+    ],
+    "all-around": [
+        "arnd",
+        "alrd"
+    ],
+    "altruistic": [
+        "alst",
+        "altst",
+        "alts",
+        "atst",
+        "altr",
+        "arsc",
+        "alsc",
+        "artc",
+        "arst",
+        "attc"
+    ],
+    "amazing": [
+        "azng"
+    ],
+    "ambitious": [
+        "amts",
+        "ambs"
+    ],
+    "amenable": [
+        "ambl"
+    ],
+    "amiable": [
+        "ambl"
+    ],
+    "amicable": [
+        "ambl",
+        "amcl"
+    ],
+    "ample": [
+        "ampl"
+    ],
+    "angel": [
+        "angl"
+    ],
+    "angelic": [
+        "angc",
+        "angl",
+        "anglc"
+    ],
+    "appreciable": [
+        "arcl"
+    ],
+    "appreciative": [
+        "actv",
+        "aprt",
+        "artv",
+        "arct"
+    ],
+    "appropriate": [
+        "appt",
+        "aprt",
+        "aprr",
+        "appr"
+    ],
+    "ardor": [
+        "ardr"
+    ],
+    "articulate": [
+        "arct",
+        "artt",
+        "artcl",
+        "arcl",
+        "artc",
+        "atlt",
+        "artl"
+    ],
+    "astonish": [
+        "assh",
+        "ansh",
+        "asth"
+    ],
+    "astonishment": [
+        "asth",
+        "assn",
+        "atmt",
+        "anhn",
+        "anht",
+        "ashm",
+        "amnt",
+        "atsm",
+        "asht",
+        "ashn",
+        "atht",
+        "atnt",
+        "atst",
+        "annt",
+        "asthm",
+        "ashmt",
+        "astm",
+        "assh",
+        "anmn",
+        "ansh",
+        "asst"
+    ],
+    "attentive": [
+        "atnt",
+        "attv",
+        "antv"
+    ],
+    "attractive": [
+        "actv",
+        "artv",
+        "arct",
+        "attv"
+    ],
+    "audible": [
+        "adbl"
+    ],
+    "auspicious": [
+        "aspc"
+    ],
+    "authentic": [
+        "atht",
+        "antc",
+        "atnt",
+        "attc"
+    ],
+    "autonomous": [
+        "atms"
+    ],
+    "available": [
+        "avlb",
+        "albl",
+        "avlbl",
+        "avbl"
+    ],
+    "awesome": [
+        "awsm"
+    ],
+    "awesomeness": [
+        "asms",
+        "awsm",
+        "awns",
+        "awss"
+    ],
+    "awestruck": [
+        "awst",
+        "asck",
+        "astr",
+        "awsk",
+        "awtc",
+        "arck"
+    ],
+    "awsome": [
+        "awsm"
+    ],
+    "beautiful": [
+        "btfl"
+    ],
+    "beneficiary": [
+        "bcry"
+    ],
+    "best-known": [
+        "btwn"
+    ],
+    "best-performing": [
+        "bsmn",
+        "bstr",
+        "btrf",
+        "btng",
+        "bfmn",
+        "brrm",
+        "bpmn",
+        "brng",
+        "btmn"
+    ],
+    "best-selling": [
+        "bt-l",
+        "btng"
+    ],
+    "better-known": [
+        "brwn",
+        "brkn",
+        "btwn"
+    ],
+    "better-than-expected": [
+        "btrth",
+        "brth",
+        "brthd",
+        "btcd",
+        "bttn",
+        "bttt",
+        "b-t-d",
+        "brnd",
+        "b-n-",
+        "brnt"
+    ],
+    "blissful": [
+        "blsl"
+    ],
+    "bountiful": [
+        "btfl"
+    ],
+    "brand-new": [
+        "brdw",
+        "brnd",
+        "brndn"
+    ],
+    "bright": [
+        "bght",
+        "brght"
+    ],
+    "charismatic": [
+        "chrsm",
+        "crsc",
+        "crst",
+        "chrc",
+        "crmc",
+        "chrm",
+        "chrs",
+        "cstc",
+        "chrst",
+        "chst"
+    ],
+    "charitable": [
+        "crbl",
+        "chrl"
+    ],
+    "cheerful": [
+        "chrl"
+    ],
+    "chivalrous": [
+        "chls",
+        "clrs",
+        "chrs"
+    ],
+    "comfortable": [
+        "cmbl",
+        "crbl"
+    ],
+    "commitment": [
+        "cmmt",
+        "cmnt",
+        "cmmnt"
+    ],
+    "compatible": [
+        "cptl",
+        "cmptbl",
+        "cmpb",
+        "cmpl",
+        "cmbl",
+        "cmpt"
+    ],
+    "competitive": [
+        "cptt",
+        "cmpt"
+    ],
+    "compliant": [
+        "cmln",
+        "cmpl",
+        "cmnt",
+        "cmpn",
+        "cplt",
+        "cmpt"
+    ],
+    "compliment": [
+        "cmln",
+        "cmmt",
+        "cmmnt",
+        "cplt",
+        "cmpl",
+        "cmnt",
+        "cmpn",
+        "cplm",
+        "cmpt"
+    ],
+    "complimentary": [
+        "cmtr",
+        "cmln",
+        "cmpr",
+        "cpty",
+        "cmmt",
+        "cntr",
+        "cmmnt",
+        "cplt",
+        "cmpny",
+        "cmpl",
+        "cmnt",
+        "cplm",
+        "cntry",
+        "cmpt"
+    ],
+    "comprehensive": [
+        "cmpr",
+        "cnsv",
+        "cmpn",
+        "cmps",
+        "cprs"
+    ],
+    "confident": [
+        "cdnt",
+        "cnnt",
+        "cndt"
+    ],
+    "congenial": [
+        "cnnl"
+    ],
+    "conscientious": [
+        "cnts",
+        "csts",
+        "csnt",
+        "cscs",
+        "cnnt"
+    ],
+    "constructive": [
+        "cstc",
+        "cctv",
+        "cntr",
+        "cntt",
+        "cnsv",
+        "cntc",
+        "cstr"
+    ],
+    "contrasty": [
+        "cntrst",
+        "cnrs",
+        "cnts",
+        "crst",
+        "cntr",
+        "cntt",
+        "csty",
+        "cntry"
+    ],
+    "convience": [
+        "cnnc"
+    ],
+    "cost-effective": [
+        "cstc",
+        "cctv"
+    ],
+    "cost-saving": [
+        "cssv",
+        "cstn",
+        "cssg",
+        "csts"
+    ],
+    "counter-attack": [
+        "cntk",
+        "crtk",
+        "cntr",
+        "cntt",
+        "cntc",
+        "crck"
+    ],
+    "credible": [
+        "crbl",
+        "crdbl",
+        "crdl"
+    ],
+    "dauntless": [
+        "dnls"
+    ],
+    "dead-cheap": [
+        "ddhp"
+    ],
+    "delectable": [
+        "dlbl"
+    ],
+    "delightful": [
+        "dgtl",
+        "dght"
+    ],
+    "delightfulness": [
+        "dfls",
+        "dgtl",
+        "dhls",
+        "dlfn",
+        "dght",
+        "dlls"
+    ],
+    "dependable": [
+        "dndb",
+        "dpnd"
+    ],
+    "detachable": [
+        "dtch"
+    ],
+    "dexterous": [
+        "dxtr"
+    ],
+    "dextrous": [
+        "dxtr"
+    ],
+    "dirt-cheap": [
+        "drth",
+        "dr-h",
+        "drch",
+        "dtch"
+    ],
+    "diversified": [
+        "dvrd",
+        "drsd"
+    ],
+    "dominate": [
+        "dmnt"
+    ],
+    "doubtless": [
+        "dbls"
+    ],
+    "dummy-proof": [
+        "dmpr"
+    ],
+    "earnestness": [
+        "estn",
+        "ernst",
+        "esns",
+        "erns",
+        "ents",
+        "enst",
+        "erst"
+    ],
+    "easy-to-use": [
+        "e-t-",
+        "est-"
+    ],
+    "ecenomical": [
+        "emcl",
+        "ecnm",
+        "encl",
+        "eccl"
+    ],
+    "economical": [
+        "emcl",
+        "ecnm",
+        "encl",
+        "eccl"
+    ],
+    "ecstatic": [
+        "estt",
+        "ecst"
+    ],
+    "effectiveness": [
+        "efts",
+        "efvn",
+        "ects"
+    ],
+    "effusiveness": [
+        "efvn",
+        "esns"
+    ],
+    "embolden": [
+        "embl",
+        "embd"
+    ],
+    "empathy": [
+        "ethy",
+        "empy",
+        "emph",
+        "emty",
+        "empt",
+        "emphy",
+        "empty"
+    ],
+    "endear": [
+        "endr"
+    ],
+    "endorsement": [
+        "edst",
+        "enrt",
+        "esnt",
+        "enst",
+        "endn",
+        "endr",
+        "ensm",
+        "esmn",
+        "ends",
+        "endt",
+        "ersm",
+        "erst"
+    ],
+    "energetic": [
+        "enrg",
+        "engt",
+        "enrt"
+    ],
+    "energize": [
+        "enrg"
+    ],
+    "energy-efficient": [
+        "er-n",
+        "en-c",
+        "enyf",
+        "engy",
+        "engn",
+        "enyt",
+        "eryt",
+        "eryc",
+        "enyc",
+        "encn",
+        "enrg",
+        "eryn",
+        "enrgy",
+        "eng-",
+        "engt",
+        "enrt"
+    ],
+    "energy-saving": [
+        "enng",
+        "er-n",
+        "engy",
+        "en-g",
+        "engn",
+        "enyg",
+        "ergs",
+        "eng-g",
+        "enrg",
+        "ergg",
+        "eryn",
+        "engg",
+        "enys",
+        "enrgy",
+        "eng-",
+        "evng"
+    ],
+    "enhancement": [
+        "encn",
+        "ennn"
+    ],
+    "enjoyable": [
+        "enjy",
+        "enyb",
+        "ejbl"
+    ],
+    "enlighten": [
+        "engn",
+        "enlg",
+        "engh",
+        "eght",
+        "enln",
+        "engt",
+        "enlgn"
+    ],
+    "enlightenment": [
+        "ennn",
+        "engn",
+        "enlg",
+        "engh",
+        "eght",
+        "elmn",
+        "etmnt",
+        "eghm",
+        "enln",
+        "engt",
+        "enlgn"
+    ],
+    "enrapt": [
+        "enrt"
+    ],
+    "enrich": [
+        "ench"
+    ],
+    "entertaining": [
+        "enng",
+        "ennn",
+        "entr",
+        "enrg",
+        "etrn",
+        "enrt"
+    ],
+    "enthral": [
+        "entl",
+        "entr",
+        "ethr",
+        "enthr",
+        "enth",
+        "enrl"
+    ],
+    "enthusiasm": [
+        "ents",
+        "enth",
+        "ensm",
+        "ehss",
+        "essm",
+        "ethm"
+    ],
+    "enthusiastic": [
+        "etsc",
+        "essc",
+        "ents",
+        "enst",
+        "ehst",
+        "esst",
+        "ehss",
+        "ensc",
+        "enth"
+    ],
+    "enviousness": [
+        "esns"
+    ],
+    "ergonomical": [
+        "emcl",
+        "ernm",
+        "encl",
+        "ernc",
+        "erml"
+    ],
+    "err-free": [
+        "e-fr"
+    ],
+    "ethical": [
+        "etcl"
+    ],
+    "euphoric": [
+        "ephc",
+        "ephr"
+    ],
+    "eventful": [
+        "entl",
+        "enfl",
+        "evnt"
+    ],
+    "examplar": [
+        "exmpl",
+        "exmp",
+        "expr",
+        "empr",
+        "expl",
+        "empl",
+        "explr"
+    ],
+    "examplary": [
+        "exmpl",
+        "emry",
+        "empy",
+        "exmp",
+        "expr",
+        "empr",
+        "expl",
+        "empl",
+        "emply",
+        "emly",
+        "explr"
+    ],
+    "excelent": [
+        "exct",
+        "excl"
+    ],
+    "exceptional": [
+        "excpt",
+        "exct",
+        "excl",
+        "expt",
+        "exctl",
+        "expl",
+        "extn",
+        "expn",
+        "excp",
+        "excpl"
+    ],
+    "excitedness": [
+        "excd",
+        "exct",
+        "extns",
+        "ects",
+        "excs",
+        "extd"
+    ],
+    "exemplar": [
+        "exmpl",
+        "exmp",
+        "expr",
+        "empr",
+        "expl",
+        "empl",
+        "explr"
+    ],
+    "exemplary": [
+        "exmpl",
+        "emry",
+        "empy",
+        "exmp",
+        "expr",
+        "empr",
+        "expl",
+        "empl",
+        "emply",
+        "emly",
+        "explr"
+    ],
+    "exhilaration": [
+        "extn"
+    ],
+    "expansive": [
+        "expnsv",
+        "expn",
+        "exps"
+    ],
+    "exquisite": [
+        "exst"
+    ],
+    "extraordinary": [
+        "etdr",
+        "extr",
+        "extd",
+        "ernr",
+        "errry",
+        "extn",
+        "erdn",
+        "erry",
+        "etrn",
+        "errd",
+        "erny",
+        "errr"
+    ],
+    "exultant": [
+        "extn"
+    ],
+    "eye-catch": [
+        "ecch",
+        "etch",
+        "e-ch",
+        "ecth"
+    ],
+    "eye-catching": [
+        "etch",
+        "ecth",
+        "ecch",
+        "echn",
+        "e-ch",
+        "ethn"
+    ],
+    "fairness": [
+        "frns"
+    ],
+    "faithfulness": [
+        "ftfl"
+    ],
+    "fancy": [
+        "fncy"
+    ],
+    "fast-growing": [
+        "fstr"
+    ],
+    "fastest-growing": [
+        "fstr",
+        "ftsw"
+    ],
+    "feature-rich": [
+        "ft-h"
+    ],
+    "fecilitous": [
+        "flts"
+    ],
+    "felicitous": [
+        "flts"
+    ],
+    "firmer": [
+        "frmr"
+    ],
+    "first-class": [
+        "frst"
+    ],
+    "first-in-class": [
+        "frnc",
+        "frst",
+        "frns"
+    ],
+    "first-rate": [
+        "frst",
+        "fstr"
+    ],
+    "flashy": [
+        "flsh"
+    ],
+    "flourish": [
+        "frsh",
+        "flsh"
+    ],
+    "fragrant": [
+        "frgt",
+        "frnt",
+        "frgn"
+    ],
+    "fresh": [
+        "frsh"
+    ],
+    "friendly": [
+        "frnd"
+    ],
+    "fruitful": [
+        "ftfl"
+    ],
+    "futurestic": [
+        "frst"
+    ],
+    "futuristic": [
+        "frst"
+    ],
+    "gentle": [
+        "gntl"
+    ],
+    "glory": [
+        "glry"
+    ],
+    "golden": [
+        "gldn"
+    ],
+    "graciousness": [
+        "grns"
+    ],
+    "grand": [
+        "grnd"
+    ],
+    "gratitude": [
+        "gttd"
+    ],
+    "hands-down": [
+        "hsdw",
+        "hnds"
+    ],
+    "handy": [
+        "hndy"
+    ],
+    "harmonious": [
+        "hrms",
+        "hrmn"
+    ],
+    "harmony": [
+        "hrmn"
+    ],
+    "high-quality": [
+        "hhly"
+    ],
+    "high-spirited": [
+        "hspr",
+        "hrtd",
+        "h-pr",
+        "hspt"
+    ],
+    "hospitable": [
+        "hsptl"
+    ],
+    "idyllic": [
+        "idyl"
+    ],
+    "illustrious": [
+        "istr",
+        "iltr",
+        "itrs"
+    ],
+    "imaginative": [
+        "intv",
+        "imgn"
+    ],
+    "impartial": [
+        "impr",
+        "impt",
+        "impl",
+        "imptl"
+    ],
+    "impeccable": [
+        "imbl",
+        "impb",
+        "impl",
+        "icbl",
+        "imcl"
+    ],
+    "important": [
+        "impr",
+        "impt"
+    ],
+    "impressed": [
+        "impr",
+        "ipsd",
+        "imrs",
+        "imps",
+        "irsd"
+    ],
+    "impressiveness": [
+        "impr",
+        "imrs",
+        "impss",
+        "imprvs",
+        "isvs",
+        "imps",
+        "irss",
+        "imprv"
+    ],
+    "improved": [
+        "impr",
+        "imprv"
+    ],
+    "incredible": [
+        "incr",
+        "incl",
+        "inbl",
+        "icbl",
+        "incd",
+        "icdl"
+    ],
+    "indebted": [
+        "inbt",
+        "indd"
+    ],
+    "individualized": [
+        "iddd",
+        "invd",
+        "idvd",
+        "invl",
+        "indd"
+    ],
+    "industrious": [
+        "idts",
+        "ints",
+        "intrs",
+        "indstr",
+        "istr",
+        "instr",
+        "itrs",
+        "inrs",
+        "inds",
+        "inst",
+        "indr",
+        "inss",
+        "idsr",
+        "insr",
+        "intr"
+    ],
+    "inestimable": [
+        "imbl",
+        "itbl",
+        "inbl",
+        "inst",
+        "intl"
+    ],
+    "inexpensive": [
+        "inps",
+        "inxs",
+        "inns"
+    ],
+    "infallible": [
+        "infl",
+        "inbl"
+    ],
+    "influential": [
+        "infl",
+        "intl",
+        "innl"
+    ],
+    "ingenious": [
+        "ingn",
+        "inns",
+        "ings"
+    ],
+    "ingenuous": [
+        "ingn",
+        "inns",
+        "ings"
+    ],
+    "innocuous": [
+        "incs"
+    ],
+    "insightful": [
+        "intf",
+        "insf",
+        "insh",
+        "ingl",
+        "ishf",
+        "ingt",
+        "inst",
+        "ight",
+        "isht",
+        "infl",
+        "intl"
+    ],
+    "inspiration": [
+        "insp",
+        "inpr",
+        "inst",
+        "inspr",
+        "insr",
+        "ispn",
+        "intn"
+    ],
+    "inspirational": [
+        "inpl",
+        "inpr",
+        "intnl",
+        "innl",
+        "inst",
+        "inspr",
+        "ispl",
+        "intl",
+        "insr",
+        "ispn",
+        "intn",
+        "insp"
+    ],
+    "instructive": [
+        "intv",
+        "istr",
+        "instr",
+        "incv",
+        "inst",
+        "intc",
+        "inct",
+        "irct",
+        "insr",
+        "intrv",
+        "intr",
+        "instt",
+        "insc"
+    ],
+    "instrumental": [
+        "itmn",
+        "intrn",
+        "intnl",
+        "istr",
+        "instr",
+        "ittl",
+        "innl",
+        "inst",
+        "instt",
+        "insr",
+        "intl",
+        "intrnt",
+        "ismn",
+        "intr",
+        "isnt",
+        "intn"
+    ],
+    "integral": [
+        "intr",
+        "intl",
+        "ingr",
+        "ingl"
+    ],
+    "intelligible": [
+        "itll",
+        "ingl",
+        "itbl",
+        "inbl",
+        "intl"
+    ],
+    "interesting": [
+        "isng",
+        "ints",
+        "itsn",
+        "intrn",
+        "itrs",
+        "itst",
+        "intst",
+        "inrs",
+        "intrstng",
+        "inst",
+        "ittn",
+        "itsg",
+        "inng",
+        "intr",
+        "intn",
+        "intrst"
+    ],
+    "intricate": [
+        "intr",
+        "inct",
+        "irct",
+        "intc"
+    ],
+    "intuitive": [
+        "intv"
+    ],
+    "invaluable": [
+        "inbl",
+        "invl"
+    ],
+    "inventive": [
+        "intv",
+        "invt"
+    ],
+    "invincible": [
+        "innc",
+        "incl",
+        "inbl",
+        "innl",
+        "invl",
+        "icbl"
+    ],
+    "inviolable": [
+        "inbl",
+        "invl"
+    ],
+    "invulnerable": [
+        "inbl",
+        "invl",
+        "innl"
+    ],
+    "irreplaceable": [
+        "icbl"
+    ],
+    "irreproachable": [
+        "iphl",
+        "ichl",
+        "irpr",
+        "icbl",
+        "irph",
+        "ipch",
+        "ichb"
+    ],
+    "irresistible": [
+        "irss",
+        "issb",
+        "itbl",
+        "isst"
+    ],
+    "issue-free": [
+        "is-fr"
+    ],
+    "jaw-droping": [
+        "jdpg",
+        "j-dr"
+    ],
+    "jubilant": [
+        "jbnt"
+    ],
+    "knowledgeable": [
+        "knwldg",
+        "kwld",
+        "klbl"
+    ],
+    "lavish": [
+        "lvsh"
+    ],
+    "law-abiding": [
+        "lwdg"
+    ],
+    "legendary": [
+        "lgdy"
+    ],
+    "light-hearted": [
+        "lthr",
+        "lght"
+    ],
+    "low-cost": [
+        "lcst"
+    ],
+    "lucky": [
+        "lcky"
+    ],
+    "lustrous": [
+        "lstr"
+    ],
+    "luxuriant": [
+        "lxnt",
+        "lrnt",
+        "lxrn"
+    ],
+    "magnanimous": [
+        "mnms"
+    ],
+    "majestic": [
+        "mjsc",
+        "mjst"
+    ],
+    "maneuverable": [
+        "mrbl",
+        "mnvl"
+    ],
+    "marvellous": [
+        "mrls"
+    ],
+    "marvelous": [
+        "mrls"
+    ],
+    "marvelousness": [
+        "mlss",
+        "mrss",
+        "msns",
+        "mrsn",
+        "mrls"
+    ],
+    "masterful": [
+        "msfl",
+        "mstrl",
+        "mrfl",
+        "mstr"
+    ],
+    "masterpiece": [
+        "msrp",
+        "mstrp",
+        "mstr"
+    ],
+    "matchless": [
+        "mtch",
+        "mchl",
+        "mtcs",
+        "mths",
+        "mchs",
+        "mcls"
+    ],
+    "memorable": [
+        "mrbl"
+    ],
+    "meritorious": [
+        "mtrs",
+        "mrtr"
+    ],
+    "merriment": [
+        "mrnt"
+    ],
+    "mesmerized": [
+        "mszd",
+        "mmrz"
+    ],
+    "meticulous": [
+        "mtcs",
+        "mcls"
+    ],
+    "mind-blowing": [
+        "mbwg",
+        "mdng",
+        "mndng"
+    ],
+    "miraculous": [
+        "mrls",
+        "mcls",
+        "mrcl",
+        "mrcs"
+    ],
+    "miraculousness": [
+        "mlss",
+        "mrcs",
+        "mrss",
+        "mrsn",
+        "msns",
+        "mrcl",
+        "mrls",
+        "mcls",
+        "mcsn"
+    ],
+    "modest": [
+        "mdst"
+    ],
+    "momentous": [
+        "mnts"
+    ],
+    "multi-purpose": [
+        "mtrs",
+        "mlts",
+        "mlps",
+        "mlpr"
+    ],
+    "navigable": [
+        "nvbl"
+    ],
+    "nifty": [
+        "nfty"
+    ],
+    "non-violence": [
+        "nvnc"
+    ],
+    "noteworthy": [
+        "nwry",
+        "nrth"
+    ],
+    "optimistic": [
+        "opts",
+        "opst",
+        "omst",
+        "opsc"
+    ],
+    "orderly": [
+        "orry",
+        "orly",
+        "ordr"
+    ],
+    "outstanding": [
+        "onng",
+        "otdn"
+    ],
+    "overtaken": [
+        "ovrn",
+        "orkn"
+    ],
+    "pamperedness": [
+        "pprs"
+    ],
+    "patriotic": [
+        "ptrc"
+    ],
+    "peaceful": [
+        "pcfl"
+    ],
+    "perfect": [
+        "prct"
+    ],
+    "permissible": [
+        "pmsl",
+        "prms",
+        "prsl",
+        "prbl"
+    ],
+    "persevere": [
+        "prsvr",
+        "prvr"
+    ],
+    "picturesque": [
+        "pctr"
+    ],
+    "pleased": [
+        "plsd"
+    ],
+    "pleasurable": [
+        "plsb",
+        "prbl"
+    ],
+    "plentiful": [
+        "plnl",
+        "plnt"
+    ],
+    "polished": [
+        "plsh",
+        "plsd"
+    ],
+    "portable": [
+        "prtb",
+        "prbl"
+    ],
+    "praiseworthy": [
+        "psth",
+        "prsw",
+        "prst",
+        "prrty",
+        "psrt",
+        "prty",
+        "pwhy",
+        "prth",
+        "pshy",
+        "pwrh",
+        "prsh",
+        "pswr"
+    ],
+    "precious": [
+        "prcs"
+    ],
+    "preferable": [
+        "prbl",
+        "prfr"
+    ],
+    "prestigious": [
+        "prst",
+        "prts"
+    ],
+    "priceless": [
+        "prcs"
+    ],
+    "proactive": [
+        "prct"
+    ],
+    "problem-free": [
+        "prblm",
+        "plm-",
+        "prbl",
+        "prfr"
+    ],
+    "productive": [
+        "prct",
+        "prdct"
+    ],
+    "proficient": [
+        "prct"
+    ],
+    "progressive": [
+        "prgrsv",
+        "prsv",
+        "prgr"
+    ],
+    "proper": [
+        "prpr"
+    ],
+    "propitious": [
+        "prts"
+    ],
+    "prosperous": [
+        "psps",
+        "pspr",
+        "prpr",
+        "pprs"
+    ],
+    "protective": [
+        "prct",
+        "prtt"
+    ],
+    "purposeful": [
+        "prsl",
+        "prpl"
+    ],
+    "reachable": [
+        "rcbl",
+        "rchl"
+    ],
+    "reasonable": [
+        "rsbl"
+    ],
+    "receptive": [
+        "rcpt"
+    ],
+    "reconcile": [
+        "rcnc"
+    ],
+    "replaceable": [
+        "rplc",
+        "rcbl"
+    ],
+    "resourceful": [
+        "rsrc",
+        "rcfl"
+    ],
+    "respectable": [
+        "rsct",
+        "rcbl",
+        "rsbl",
+        "rspc"
+    ],
+    "respectful": [
+        "rsct",
+        "rspc",
+        "rcfl"
+    ],
+    "responsive": [
+        "rspv",
+        "rspn"
+    ],
+    "retractable": [
+        "rcbl"
+    ],
+    "revolutionary": [
+        "rltn",
+        "rtry"
+    ],
+    "revolutionized": [
+        "rltn"
+    ],
+    "richness": [
+        "rchn"
+    ],
+    "righteous": [
+        "rght"
+    ],
+    "righteousness": [
+        "rtns",
+        "rght"
+    ],
+    "rightful": [
+        "rght"
+    ],
+    "rightness": [
+        "rtns",
+        "rght"
+    ],
+    "risk-free": [
+        "rskr"
+    ],
+    "rock-star": [
+        "rstr",
+        "rcks",
+        "rkst",
+        "r-tr"
+    ],
+    "salutary": [
+        "sltr",
+        "stry"
+    ],
+    "satisfactory": [
+        "stsr",
+        "sctr",
+        "stst",
+        "stry",
+        "stfr",
+        "sttr",
+        "scry",
+        "stft",
+        "sfcr"
+    ],
+    "scenic": [
+        "scnc"
+    ],
+    "selective": [
+        "slct",
+        "sctv"
+    ],
+    "self-determination": [
+        "sttn",
+        "sdnn",
+        "stmt",
+        "smnt",
+        "strt",
+        "sdtr",
+        "stnt",
+        "sfmn",
+        "strm",
+        "smtn",
+        "strn",
+        "sdmt",
+        "sltr",
+        "s-tr"
+    ],
+    "self-respect": [
+        "slct",
+        "srsc",
+        "sspt",
+        "slfs",
+        "srpt",
+        "srst",
+        "sfspc",
+        "slsc",
+        "sfst",
+        "slst"
+    ],
+    "self-satisfaction": [
+        "sttn",
+        "slct",
+        "stst",
+        "stfn",
+        "sstt",
+        "slfs",
+        "sltc",
+        "ssst",
+        "sssn",
+        "sssc",
+        "slsc",
+        "stft",
+        "sfst",
+        "slst"
+    ],
+    "self-sufficient": [
+        "slct",
+        "slfs",
+        "slst",
+        "ssnt",
+        "sfst",
+        "slsc"
+    ],
+    "sensible": [
+        "ssbl"
+    ],
+    "sensitive": [
+        "sstv"
+    ],
+    "sharp": [
+        "shrp"
+    ],
+    "sharper": [
+        "shrp",
+        "shrr"
+    ],
+    "shiny": [
+        "shny"
+    ],
+    "simplified": [
+        "smpl",
+        "smpf",
+        "spld",
+        "splf"
+    ],
+    "skillful": [
+        "skll",
+        "sklf"
+    ],
+    "smart": [
+        "smrt"
+    ],
+    "smooth": [
+        "smth"
+    ],
+    "sociable": [
+        "scbl"
+    ],
+    "solicitous": [
+        "slct",
+        "scts"
+    ],
+    "sophisticated": [
+        "shtt",
+        "sstt",
+        "spsc",
+        "shst",
+        "spsd"
+    ],
+    "spectacular": [
+        "spccr",
+        "sctr",
+        "spcr",
+        "sccl",
+        "sccr",
+        "spcl"
+    ],
+    "speedy": [
+        "spdy"
+    ],
+    "spontaneous": [
+        "sptn",
+        "stns"
+    ],
+    "stability": [
+        "stly",
+        "stby",
+        "stlt"
+    ],
+    "state-of-the-art": [
+        "s-th",
+        "sh-t",
+        "strt",
+        "stttt",
+        "shrt",
+        "stfr",
+        "sttr",
+        "stft",
+        "s-t-",
+        "s--t",
+        "s---",
+        "s--h",
+        "s-tr",
+        "sthr"
+    ],
+    "stately": [
+        "stly"
+    ],
+    "staunchness": [
+        "schn",
+        "schs",
+        "stch",
+        "stns",
+        "sthn"
+    ],
+    "steadfastness": [
+        "sttn",
+        "stst",
+        "stss",
+        "stfn",
+        "sfst",
+        "ststs",
+        "stds",
+        "sdss",
+        "stns",
+        "stft",
+        "stdn"
+    ],
+    "steady": [
+        "stdy"
+    ],
+    "stellarly": [
+        "stry",
+        "stly",
+        "stll",
+        "srly",
+        "slly",
+        "strl"
+    ],
+    "stimulative": [
+        "stmt",
+        "stlt",
+        "stml"
+    ],
+    "straighten": [
+        "sttn",
+        "srhn",
+        "strt",
+        "strgt",
+        "sghtn",
+        "strn",
+        "srgn",
+        "sthn",
+        "sght"
+    ],
+    "strong": [
+        "stng",
+        "strng",
+        "strn",
+        "strg"
+    ],
+    "stupendous": [
+        "stnd",
+        "spnd",
+        "stds",
+        "stps",
+        "stns",
+        "snds"
+    ],
+    "sturdy": [
+        "stdy",
+        "stry"
+    ],
+    "stylish": [
+        "stsh",
+        "styl",
+        "stls",
+        "stys",
+        "syls"
+    ],
+    "sublime": [
+        "sblm"
+    ],
+    "subsidized": [
+        "sbzd"
+    ],
+    "substantive": [
+        "sbnt",
+        "sstt",
+        "stnt",
+        "sstv",
+        "ssnt",
+        "sbtv"
+    ],
+    "successful": [
+        "scsf"
+    ],
+    "sumptuous": [
+        "smts",
+        "smpt"
+    ],
+    "sumptuousness": [
+        "spss",
+        "smss",
+        "smns",
+        "stss",
+        "smts",
+        "smpt",
+        "stns",
+        "smtn",
+        "sptn"
+    ],
+    "superior": [
+        "sprr"
+    ],
+    "sustainable": [
+        "ssbl"
+    ],
+    "sweeten": [
+        "swtn"
+    ],
+    "sweetness": [
+        "swtn",
+        "stns",
+        "swts"
+    ],
+    "tempt": [
+        "tmpt"
+    ],
+    "terrific": [
+        "trfc"
+    ],
+    "thank": [
+        "thnk"
+    ],
+    "thankful": [
+        "thnk",
+        "tnfl"
+    ],
+    "thoughtful": [
+        "thgh",
+        "thght",
+        "tgfl",
+        "thgt",
+        "thht",
+        "tght"
+    ],
+    "thoughtfulness": [
+        "thtn",
+        "tfln",
+        "ttfn",
+        "thts",
+        "thgh",
+        "thght",
+        "thgs",
+        "thhn",
+        "thghts",
+        "tgfl",
+        "thgt",
+        "thln",
+        "thht",
+        "tght",
+        "thhs"
+    ],
+    "thumb-up": [
+        "thmb"
+    ],
+    "thumbs-up": [
+        "tbsp",
+        "thmbs"
+    ],
+    "time-honored": [
+        "thnd",
+        "thrd"
+    ],
+    "togetherness": [
+        "thrs",
+        "trns",
+        "thrn",
+        "tgth",
+        "tgthr"
+    ],
+    "tolerable": [
+        "trbl"
+    ],
+    "toll-free": [
+        "t-fr"
+    ],
+    "transparent": [
+        "tprn",
+        "trspr",
+        "trns",
+        "trst",
+        "tnsp",
+        "trnr",
+        "trsp"
+    ],
+    "trendy": [
+        "trny",
+        "trnd"
+    ],
+    "trophy": [
+        "trph"
+    ],
+    "trouble-free": [
+        "t-fr",
+        "trbl"
+    ],
+    "trustworthiness": [
+        "trsw",
+        "ttwr",
+        "ttth",
+        "trns",
+        "trtt",
+        "twrt",
+        "twts",
+        "trrs",
+        "trtw",
+        "trst",
+        "tstr"
+    ],
+    "trustworthy": [
+        "trsw",
+        "ttty",
+        "ttwr",
+        "ttth",
+        "ttry",
+        "trty",
+        "trry",
+        "trtt",
+        "twrt",
+        "trtw",
+        "trst",
+        "tstr"
+    ],
+    "truthfulness": [
+        "thln",
+        "tfln",
+        "ttfn",
+        "trns"
+    ],
+    "twinkly": [
+        "twnkl"
+    ],
+    "ultra-crisp": [
+        "urcr",
+        "ultrs",
+        "ultr"
+    ],
+    "unabashed": [
+        "unsh"
+    ],
+    "unaffected": [
+        "unft"
+    ],
+    "unassailable": [
+        "unsl",
+        "unbl",
+        "usll",
+        "unsbl"
+    ],
+    "unbeatable": [
+        "untl",
+        "unbl"
+    ],
+    "unconditional": [
+        "unnn",
+        "uncl",
+        "untl",
+        "untn",
+        "unnt"
+    ],
+    "undamaged": [
+        "undg"
+    ],
+    "undaunted": [
+        "unnt"
+    ],
+    "understandable": [
+        "unsbl",
+        "ustl",
+        "undr",
+        "unst",
+        "unbl",
+        "unrst",
+        "unsn",
+        "ursl",
+        "undstd",
+        "urst",
+        "unsl",
+        "uddl",
+        "undrstnd",
+        "unds",
+        "undrst",
+        "untl",
+        "untn"
+    ],
+    "undisputable": [
+        "unst",
+        "unpl",
+        "unsp",
+        "unbl",
+        "ustl",
+        "unsl",
+        "unds",
+        "unsbl",
+        "undst",
+        "untl"
+    ],
+    "undisputed": [
+        "unst",
+        "unsp",
+        "undstd",
+        "uptd",
+        "unds"
+    ],
+    "unencumbered": [
+        "umbr",
+        "unbr",
+        "uncr",
+        "uncb"
+    ],
+    "unequivocal": [
+        "unvl",
+        "uncl"
+    ],
+    "unfettered": [
+        "untr",
+        "unfr",
+        "unft",
+        "uftr"
+    ],
+    "unforgettable": [
+        "ungl",
+        "unfl",
+        "unbl",
+        "unfrt",
+        "unfg",
+        "urgl",
+        "unftl",
+        "untl",
+        "unfr"
+    ],
+    "unmatched": [
+        "unth",
+        "unch"
+    ],
+    "unparalleled": [
+        "upll",
+        "urll",
+        "unpl",
+        "unpr"
+    ],
+    "unquestionable": [
+        "ustl",
+        "unst",
+        "unbl",
+        "unsn",
+        "unsl",
+        "unsbl",
+        "untl",
+        "untn"
+    ],
+    "unrestricted": [
+        "unrst",
+        "unst",
+        "unstr",
+        "unsc",
+        "unsr",
+        "unstc",
+        "ustr",
+        "untr",
+        "ursc",
+        "ustc",
+        "urst"
+    ],
+    "unrivaled": [
+        "unvl"
+    ],
+    "unselfish": [
+        "unsh",
+        "unfh",
+        "unsl",
+        "unlsh"
+    ],
+    "upgradable": [
+        "upgrd",
+        "upgr"
+    ],
+    "upgradeable": [
+        "upgrd",
+        "upgr"
+    ],
+    "upgraded": [
+        "upgrd",
+        "urdd",
+        "upgr"
+    ],
+    "upliftment": [
+        "ultn",
+        "ufnt"
+    ],
+    "upscale": [
+        "upsc",
+        "upcl"
+    ],
+    "user-friendly": [
+        "urly",
+        "ufny",
+        "ur-d",
+        "undy"
+    ],
+    "user-replaceable": [
+        "ulcl",
+        "upll",
+        "urll",
+        "urpl",
+        "usll",
+        "us-b",
+        "upcl",
+        "us-c",
+        "urlc"
+    ],
+    "victorious": [
+        "vctr"
+    ],
+    "virtuous": [
+        "vrts"
+    ],
+    "vouchsafe": [
+        "vchs"
+    ],
+    "warmth": [
+        "wrth"
+    ],
+    "wealthy": [
+        "wlty"
+    ],
+    "well-backlit": [
+        "wlbt"
+    ],
+    "well-connected": [
+        "wntd"
+    ],
+    "well-educated": [
+        "wdtd"
+    ],
+    "well-established": [
+        "wsbs",
+        "w-th",
+        "wllsh",
+        "wsbl",
+        "wthd"
+    ],
+    "well-intentioned": [
+        "wntd"
+    ],
+    "well-known": [
+        "wlkn"
+    ],
+    "well-positioned": [
+        "wpst"
+    ],
+    "well-rounded": [
+        "wlrn"
+    ],
+    "well-run": [
+        "wlrn"
+    ],
+    "wholesome": [
+        "whsm",
+        "whls"
+    ],
+    "wonderful": [
+        "wndl",
+        "wndrl",
+        "wndr"
+    ],
+    "wonderous": [
+        "wndr"
+    ],
+    "wondrous": [
+        "wndr"
+    ],
+    "worked": [
+        "wrkd"
+    ],
+    "world-famous": [
+        "wrds",
+        "wrld",
+        "wrldfms",
+        "wrlds"
+    ],
+    "worth": [
+        "wrth"
+    ],
+    "worth-while": [
+        "wrth",
+        "wh-wh"
+    ],
+    "worthy": [
+        "wrth"
+    ]
+}
