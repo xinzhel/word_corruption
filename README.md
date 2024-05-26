@@ -1,3 +1,4 @@
+# Can Pretrained Language Models Derive Correct Semantics from Corrupt Subwords under Noise?
 All the script should be run inside the root directory of this project.
 ## Data
 `data` contains all the generated data formatted as a dictionary where each key is canonical words, corresponding to multiple noisy word forms. 
@@ -34,4 +35,23 @@ plm_name = "bert"
 tokenizer = resource.hf_tokenizers[plm_name]
 plm = resource.hf_models["-".join(plm_name, dataset_name)]
 data = resource.datasets[dataset_name]
+```
+## Reference
+```
+@inproceedings{li-etal-2023-pretrained,
+    title = "Can Pretrained Language Models Derive Correct Semantics from Corrupt Subwords under Noise?",
+    author = "Li, Xinzhe  and
+      Liu, Ming  and
+      Gao, Shang",
+    editor = "Palmer, Alexis  and
+      Camacho-collados, Jose",
+    booktitle = "Proceedings of the 12th Joint Conference on Lexical and Computational Semantics (*SEM 2023)",
+    month = jul,
+    year = "2023",
+    address = "Toronto, Canada",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2023.starsem-1.15",
+    doi = "10.18653/v1/2023.starsem-1.15",
+    pages = "165--173"
+}
 ```
